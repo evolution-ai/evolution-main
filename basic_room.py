@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import sys
 import pygame
 
+from basic_agent import *
+
 ## Class definition:
 # This class describes the representation and state of the room in which the
 # agents will be located
@@ -21,15 +23,18 @@ import pygame
 #            radius set by the field
 
 class Room:
-    def __init__(self, x, y, rad) -> None:
+    def __init__(self, x: int, y: int, rad: int, goal: Agent) -> None:
         self.x_length = x
         self.y_length = y
         self.radius = rad
-        self.x_goal = x/2 
-        self.y_goal = y/2
+
+        # TODO: make this allow multiple agents as prey
+        self.goal = goal[0]
     
     def is_valid_location(self, x_targ, y_targ):
         return 0 <= x_targ <= self.x_length and 0 <= y_targ <= self.y_length
 
     def is_goal(self, x_pos, y_pos):
-        return (self.x_goal-self.radius <= x_pos <= self.x_goal +self.radius) and (self.y_goal-self.radius <= y_pos <= self.y_goal + self.radius)
+        x_match = self.goal.current_x - self.radius <= x_pos <= self.goal.current_x + self.radius
+        y_match = self.goal.current_y - self.radius <= y_pos <= self.goal.current_y + self.radius
+        return x_match and y_match
