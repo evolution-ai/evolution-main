@@ -23,7 +23,7 @@ class Game:
 
         self.x_length = 500
         self.y_length = 500
-        self.goal_radius = 10
+        self.goal_radius = 2
 
         # room size is same as pygame display
         # predators is a list of predator agents 
@@ -92,3 +92,4 @@ class Game:
 if __name__ == "__main__":
     game = Game()
     game.run()
+
