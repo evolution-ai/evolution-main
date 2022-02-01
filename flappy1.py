@@ -383,7 +383,7 @@ def eval_genomes(genomes, config):
             # can add this line to give more reward for passing through a pipe (not required)
             for genome in ge:
                 genome.fitness += 5
-            pipes.append(Pipe(WIN_WIDTH, GAP - 5 * score))
+            pipes.append(Pipe(WIN_WIDTH, GAP - 3 * score))
 
         for r in rem:
             pipes.remove(r)
