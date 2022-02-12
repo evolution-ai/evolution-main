@@ -14,9 +14,9 @@ def move(pos):
 
 def main():
 	# Simulation parameters
-	N         = 3     # Number of agents
+	N         = 3       # Number of agents
 	t         = 0       # current time of the simulation
-	tEnd      = 3.0    # time at which simulation ends
+	tEnd      = 3.0     # time at which simulation ends
 	dt        = 0.01    # time step sizw
 	plotRealTime = True # switch on for plotting as the simulation goes along
 	
