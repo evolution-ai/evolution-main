@@ -1,12 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-"""
-Create Your Own N-body Simulation (With Python)
-Philip Mocz (2020) Princeton Univeristy, @PMocz
-Simulate orbits of stars interacting due to gravity
-Code calculates pairwise forces according to Newton's Law of Gravity
-"""
 
 def getAcc( pos, mass, G, softening ):
 	"""
@@ -39,51 +33,18 @@ def getAcc( pos, mass, G, softening ):
 	a = np.hstack((ax,ay,az))
 
 	return a
-	
-# def getEnergy( pos, vel, mass, G ):
-# 	"""
-# 	Get kinetic energy (KE) and potential energy (PE) of simulation
-# 	pos is N x 3 matrix of positions
-# 	vel is N x 3 matrix of velocities
-# 	mass is an N x 1 vector of masses
-# 	G is Newton's Gravitational constant
-# 	KE is the kinetic energy of the system
-# 	PE is the potential energy of the system
-# 	"""
-# 	# Kinetic Energy:
-# 	KE = 0.5 * np.sum(np.sum( mass * vel**2 ))
 
 
-# 	# Potential Energy:
-
-# 	# positions r = [x,y,z] for all particles
-# 	x = pos[:,0:1]
-# 	y = pos[:,1:2]
-# 	z = pos[:,2:3]
-
-# 	# matrix that stores all pairwise particle separations: r_j - r_i
-# 	dx = x.T - x
-# 	dy = y.T - y
-# 	dz = z.T - z
-
-# 	# matrix that stores 1/r for all particle pairwise particle separations 
-# 	inv_r = np.sqrt(dx**2 + dy**2 + dz**2)
-# 	inv_r[inv_r>0] = 1.0/inv_r[inv_r>0]
-
-# 	# sum over upper triangle, to count each interaction only once
-# 	PE = G * np.sum(np.sum(np.triu(-(mass*mass.T)*inv_r,1)))
-	
-# 	return KE, PE
 
 
 def main():
 	""" N-body simulation """
 	
 	# Simulation parameters
-	N         = 3    # Number of particles
+	N         = 100    # Number of agents
 	t         = 0      # current time of the simulation
-	tEnd      = 2.0   # time at which simulation ends
-	dt        = 0.01   # timestep
+	tEnd      = 10.0    # time at which simulation ends
+	dt        = 0.01   # time step sizw
 	softening = 0.1    # softening length
 	G         = 1.0    # Newton's Gravitational Constant
 	plotRealTime = True # switch on for plotting as the simulation goes along
@@ -91,6 +52,7 @@ def main():
 	# Generate Initial Conditions
 	np.random.seed(17)            # set the random number generator seed
 	
+    #TODO: set this to 0
 	mass = 20.0*np.ones((N,1))/N  # total mass of particles is 20
 	pos  = np.random.randn(N,3)   # randomly selected positions and velocities
 	vel  = np.random.randn(N,3)
@@ -99,10 +61,8 @@ def main():
 	vel -= np.mean(mass * vel, 0) / np.mean(mass)
 	
 	# calculate initial gravitational accelerations
+    # TODO: set to zero
 	acc = getAcc( pos, mass, G, softening )
-	
-	# calculate initial energy of system
-	# KE, PE  = getEnergy( pos, vel, mass, G )
 	
 	# number of timesteps
 	Nt = int(np.ceil(tEnd/dt))
@@ -110,17 +70,11 @@ def main():
 	# save energies, particle orbits for plotting trails
 	pos_save = np.zeros((N,3,Nt+1))
 	pos_save[:,:,0] = pos
-	# KE_save = np.zeros(Nt+1)
-	# KE_save[0] = KE
-	# PE_save = np.zeros(Nt+1)
-	# PE_save[0] = PE
-	t_all = np.arange(Nt+1)*dt
 	
 	# prep figure
 	fig = plt.figure(figsize=(10,10), dpi=80)
 	grid = plt.GridSpec(3, 1, wspace=0.0, hspace=0.3)
 	ax1 = plt.subplot(grid[0:4,0])
-	# ax2 = plt.subplot(grid[2,0])
 	
 	# Simulation Main Loop
 	for i in range(Nt):
@@ -139,13 +93,8 @@ def main():
 		# update time
 		t += dt
 		
-		# get energy of system
-		# KE, PE  = getEnergy( pos, vel, mass, G )
-		
 		# save energies, positions for plotting trail
 		pos_save[:,:,i+1] = pos
-		# KE_save[i+1] = KE
-		# PE_save[i+1] = PE
 		
 		# plot in real time
 		if plotRealTime or (i == Nt-1):
@@ -160,29 +109,9 @@ def main():
 			ax1.set_xticks([-10,-8,-6,-4,-2,0,2,4,6,8,10])
 			ax1.set_yticks([-10,-8,-6,-4,-2,0,2,4,6,8,10])
 			
-			# plt.sca(ax2)
-			# plt.cla()
-			# plt.scatter(t_all,KE_save,color='red',s=1,label='KE' if i == Nt-1 else "")
-			# plt.scatter(t_all,PE_save,color='blue',s=1,label='PE' if i == Nt-1 else "")
-			# plt.scatter(t_all,KE_save+PE_save,color='black',s=1,label='Etot' if i == Nt-1 else "")
-			# ax2.set(xlim=(0, tEnd), ylim=(-300, 300))
-			# ax2.set_aspect(0.007)
-			
 			plt.pause(0.0001)
 	
-	
-	# add labels/legend
-	# plt.sca(ax2)
-	# plt.xlabel('time')
-	# plt.ylabel('energy')
-	# ax2.legend(loc='upper right')
-	
-	# # Save figure
-	# plt.savefig('nbody.png',dpi=240)
-	# plt.show()
-	    
 	return 0
-	
 
   
 if __name__== "__main__":
