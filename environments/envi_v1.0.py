@@ -2,73 +2,41 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def getAcc( pos, mass, G, softening ):
-	"""
-    Calculate the acceleration on each particle due to Newton's Law 
-	pos  is an N x 3 matrix of positions
-	mass is an N x 1 vector of masses
-	G is Newton's Gravitational constant
-	softening is the softening length
-	a is N x 3 matrix of accelerations
-	"""
-	# positions r = [x,y,z] for all particles
-	x = pos[:,0:1]
-	y = pos[:,1:2]
-	z = pos[:,2:3]
-
-	# matrix that stores all pairwise particle separations: r_j - r_i
-	dx = x.T - x
-	dy = y.T - y
-	dz = z.T - z
-
-	# matrix that stores 1/r^3 for all particle pairwise particle separations 
-	inv_r3 = (dx**2 + dy**2 + dz**2 + softening**2)
-	inv_r3[inv_r3>0] = inv_r3[inv_r3>0]**(-1.5)
-
-	ax = G * (dx * inv_r3) @ mass
-	ay = G * (dy * inv_r3) @ mass
-	az = G * (dz * inv_r3) @ mass
+def move(pos):
+	ax = np.array([[1],[0],[-1]])
+	ay = np.array([[1],[1],[1]])
 	
 	# pack together the acceleration components
-	a = np.hstack((ax,ay,az))
+	a = np.hstack((ax,ay))
 
 	return a
 
 
-
-
 def main():
-	""" N-body simulation """
-	
 	# Simulation parameters
-	N         = 100    # Number of agents
-	t         = 0      # current time of the simulation
-	tEnd      = 10.0    # time at which simulation ends
-	dt        = 0.01   # time step sizw
-	softening = 0.1    # softening length
-	G         = 1.0    # Newton's Gravitational Constant
+	N         = 3     # Number of agents
+	t         = 0       # current time of the simulation
+	tEnd      = 3.0    # time at which simulation ends
+	dt        = 0.01    # time step sizw
 	plotRealTime = True # switch on for plotting as the simulation goes along
 	
 	# Generate Initial Conditions
 	np.random.seed(17)            # set the random number generator seed
 	
-    #TODO: set this to 0
-	mass = 20.0*np.ones((N,1))/N  # total mass of particles is 20
-	pos  = np.random.randn(N,3)   # randomly selected positions and velocities
-	vel  = np.random.randn(N,3)
+	pos  = np.random.randn(N,2)   # randomly selected positions and velocities
+	vel  = np.zeros((N,2))
 	
 	# Convert to Center-of-Mass frame
-	vel -= np.mean(mass * vel, 0) / np.mean(mass)
+	vel -= np.mean(vel)
 	
 	# calculate initial gravitational accelerations
-    # TODO: set to zero
-	acc = getAcc( pos, mass, G, softening )
-	
+	acc = move(pos)
+
 	# number of timesteps
 	Nt = int(np.ceil(tEnd/dt))
 	
 	# save energies, particle orbits for plotting trails
-	pos_save = np.zeros((N,3,Nt+1))
+	pos_save = np.zeros((N,2,Nt+1))
 	pos_save[:,:,0] = pos
 	
 	# prep figure
@@ -85,7 +53,7 @@ def main():
 		pos += vel * dt
 		
 		# update accelerations
-		acc = getAcc( pos, mass, G, softening )
+		acc = move(pos)
 		
 		# (1/2) kick
 		vel += acc * dt/2.0
