@@ -80,10 +80,10 @@ def main():
 	""" N-body simulation """
 	
 	# Simulation parameters
-	N         = 10    # Number of particles
+	N         = 3    # Number of particles
 	t         = 0      # current time of the simulation
 	tEnd      = 10.0   # time at which simulation ends
-	dt        = 0.001   # timestep
+	dt        = 0.01   # timestep
 	softening = 0.1    # softening length
 	G         = 1.0    # Newton's Gravitational Constant
 	plotRealTime = True # switch on for plotting as the simulation goes along
