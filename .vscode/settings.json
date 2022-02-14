@@ -1,0 +1,11 @@
+{
+"[git-commit]": {"editor.rulers": [50]},
+"[python]": {
+    "editor.rulers": [
+        {
+            "column": 120,
+            "color": "#303030"
+          }
+    ]
+}
+}

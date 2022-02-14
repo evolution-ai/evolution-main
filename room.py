@@ -9,8 +9,8 @@ class Environment:
 		# Simulation parameters
 		self.N         = 3       # Number of agents
 		self.t         = 0       # current time of the simulation
-		self.tEnd      = 3.0     # time at which simulation ends
-		self.dt        = 0.01    # time step sizw
+		self.tEnd      = 5.0     # time at which simulation ends
+		self.dt        = 0.01    # time step size
 		self.plotRealTime = True # switch on for plotting as the simulation goes along
 		self.agents = []
 		self.running = True
