@@ -7,16 +7,17 @@ import matplotlib.pyplot as plt
 class Environment:
 	def __init__(self):
 		# Simulation parameters
-		self.N         = 5       # Number of agents
+		self.N         = 3       # Number of agents
 		self.t         = 0       # current time of the simulation
-		self.tEnd      = 5.0     # time at which simulation ends
-		self.dt        = 0.01    # time step size
+		self.tEnd      = 30     # time at which simulation ends
+		self.dt        = 0.02    # time step size
 		self.plotRealTime = True # switch on for plotting as the simulation goes along
 		self.agents = []
 		self.running = True
 		self.gridsize = 100.0
 
-		self.foodN = 100
+		self.foodN = 50
+		self.food_dict = dict()
 
 		self.initialize_positions()
 		self.initialize_agents()
@@ -32,18 +33,29 @@ class Environment:
 		# Generate Initial Conditions
 		# np.random.seed(17)            # set the random number generator seed
 		
-		self.pos  = (np.random.random_sample((self.N,2)) - 0.5)* self.gridsize  # randomly selected positions and velocities
+		self.pos  = (np.random.random_sample((self.N,2)) - 0.5) * self.gridsize  # randomly selected positions and velocities
 		self.vel  = np.zeros((self.N,2))
 	
-	def initialize_food(self): 
-		self.foodPos  = (np.random.random_sample((self.foodN,2)) - 0.5)* self.gridsize * 2
+
+	def initialize_food(self):
+
+		food_pos = (np.random.normal(0, self.gridsize/3, (self.foodN, 2)))
+		
+		for i in range(self.foodN):
+			self.food_dict[tuple(food_pos[i])] = 5
+
 		
 
 	def update(self):
 
 		acc = np.zeros((self.N,2))
 		for i, agent in enumerate(self.agents):
-			acc[i] = agent.determine_next_move(self.foodPos)
+			(acc[i], to_eat_action) = agent.determine_next_move(self.food_dict)
+
+			if to_eat_action[0]:
+				# print(self.food_dict)
+				self.food_dict.pop(to_eat_action[1])
+
 		return acc
 		
 
@@ -95,7 +107,11 @@ class Environment:
 
 				plt.sca(ax1)
 				plt.cla()
-				plt.scatter(self.foodPos[:,0],self.foodPos[:,1],s=5,color='red')
+
+				# zip(*testList2)
+				plt.scatter(*zip(*self.food_dict.keys()),s=5,color='red')
+
+				# plt.scatter(self.foodPos[:,0],self.foodPos[:,1],s=5,color='red')
 
 				xx = pos_save[:,0,max(i-50,0):i+1]
 				yy = pos_save[:,1,max(i-50,0):i+1]
@@ -108,7 +124,7 @@ class Environment:
 				ax1.set_xticks(list(range(-int(self.gridsize), int(self.gridsize) + 1, int(self.gridsize/5))))
 				ax1.set_yticks(list(range(-int(self.gridsize), int(self.gridsize) + 1, int(self.gridsize/5))))
 				
-				plt.pause(0.000001)
+				plt.pause(0.001)
 		
 		return 0
 
