@@ -56,13 +56,12 @@ class Agent:
 			if min_dist < self.eat_range:
 				to_eat_action = (True, food_loc)
 
-		else:
-			ax = np.random.random((1,))
-			ay = np.random.random((1,))
-			return (np.hstack((ax,ay)), to_eat_action)
+			a = (2 * np.array(closest_food) - self.vel)
 
-		a = (2 * np.array(closest_food) - self.vel)
-		a = (a / np.linalg.norm(a)) * self.max_acc
+		else:
+			ax = np.random.random((1,)) - 0.5
+			ay = np.random.random((1,)) - 0.5
+			a = np.hstack((ax,ay))
 
 		# ax = np.array([[1]])
 		# ay = np.array([[0]])
@@ -70,6 +69,8 @@ class Agent:
 		# # pack together the acceleration components
 		# a = np.hstack((ax,ay))
 
+
+		a = (a / np.linalg.norm(a)) * self.max_acc
 		self.energy -= 0.1
 
 		return (a, to_eat_action)

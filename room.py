@@ -7,16 +7,16 @@ import matplotlib.pyplot as plt
 class Environment:
 	def __init__(self):
 		# Simulation parameters
-		self.N         = 3       # Number of agents
+		self.N         = 5       # Number of agents
 		self.t         = 0       # current time of the simulation
-		self.tEnd      = 30     # time at which simulation ends
+		self.tEnd      = 1000     # time at which simulation ends
 		self.dt        = 0.02    # time step size
 		self.plotRealTime = True # switch on for plotting as the simulation goes along
 		self.agents = []
 		self.running = True
 		self.gridsize = 100.0
 
-		self.foodN = 50
+		self.foodN = 150
 		self.food_dict = dict()
 
 		self.initialize_positions()
@@ -78,7 +78,7 @@ class Environment:
 		pos_save[:,:,0] = self.pos
 		
 		# prep figure
-		fig = plt.figure(figsize=(10,10), dpi=80)
+		fig = plt.figure(figsize=(12,12), dpi=80)
 		grid = plt.GridSpec(3, 1, wspace=0.0, hspace=0.3)
 		ax1 = plt.subplot(grid[0:4,0])
 		
