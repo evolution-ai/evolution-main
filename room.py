@@ -7,14 +7,14 @@ import matplotlib.pyplot as plt
 class Environment:
 	def __init__(self):
 		# Simulation parameters
-		self.N         = 3       # Number of agents
+		self.N         = 5       # Number of agents
 		self.t         = 0       # current time of the simulation
 		self.tEnd      = 5.0     # time at which simulation ends
 		self.dt        = 0.01    # time step size
 		self.plotRealTime = True # switch on for plotting as the simulation goes along
 		self.agents = []
 		self.running = True
-		self.gridsize = 10.0
+		self.gridsize = 100.0
 
 		self.foodN = 100
 
@@ -43,7 +43,7 @@ class Environment:
 
 		acc = np.zeros((self.N,2))
 		for i, agent in enumerate(self.agents):
-			acc[i] = agent.determine_next_move()
+			acc[i] = agent.determine_next_move(self.foodPos)
 		return acc
 		
 
@@ -92,19 +92,23 @@ class Environment:
 			
 			# plot in real time
 			if self.plotRealTime or (i == Nt-1):
+
 				plt.sca(ax1)
 				plt.cla()
-				plt.scatter(self.foodPos[:,0],self.foodPos[:,1],s=10,color='red')
+				plt.scatter(self.foodPos[:,0],self.foodPos[:,1],s=5,color='red')
+
 				xx = pos_save[:,0,max(i-50,0):i+1]
 				yy = pos_save[:,1,max(i-50,0):i+1]
+
 				plt.scatter(xx,yy,s=1,color=[.7,.7,1])
 				plt.scatter(self.pos[:,0],self.pos[:,1],s=20,color='blue')
+
 				ax1.set(xlim=(-self.gridsize, self.gridsize), ylim=(-self.gridsize, self.gridsize))
 				ax1.set_aspect('equal', 'box')
-				ax1.set_xticks(list(range(-int(self.gridsize), int(self.gridsize), int(self.gridsize/5))))
-				ax1.set_yticks(list(range(-int(self.gridsize), int(self.gridsize), int(self.gridsize/5))))
+				ax1.set_xticks(list(range(-int(self.gridsize), int(self.gridsize) + 1, int(self.gridsize/5))))
+				ax1.set_yticks(list(range(-int(self.gridsize), int(self.gridsize) + 1, int(self.gridsize/5))))
 				
-				plt.pause(0.0001)
+				plt.pause(0.000001)
 		
 		return 0
 
