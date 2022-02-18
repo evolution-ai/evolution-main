@@ -70,4 +70,4 @@ class Painter:
         pygame.draw.circle(self.surface, (255,0,0), pos, 1)
 
     def draw_agent(self, pos):
-        pygame.draw.circle(self.surface, (0,0,255), pos, 1)
+        pygame.draw.circle(self.surface, (0,0,255), pos, 3)
