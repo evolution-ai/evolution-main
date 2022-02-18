@@ -1,7 +1,8 @@
 from body import Agent
 import numpy as np
-import matplotlib.pyplot as plt
-
+# import matplotlib.pyplot as plt
+import pygame as pg
+from visualizer import Visualizer
 
 
 class Environment:
@@ -15,6 +16,7 @@ class Environment:
 		self.agents = []
 		self.running = True
 		self.gridsize = 100.0
+		self.viz = Visualizer()
 
 		self.foodN = 150
 		self.food_dict = dict()
@@ -44,8 +46,6 @@ class Environment:
 		for i in range(self.foodN):
 			self.food_dict[tuple(food_pos[i])] = 5
 
-		
-
 	def update(self):
 
 		acc = np.zeros((self.N,2))
@@ -53,12 +53,10 @@ class Environment:
 			(acc[i], to_eat_action) = agent.determine_next_move(self.food_dict)
 
 			if to_eat_action[0]:
-				# print(self.food_dict)
 				self.food_dict.pop(to_eat_action[1])
 
 		return acc
 		
-
 	def is_running(self):
 		return self.running
 
@@ -77,11 +75,7 @@ class Environment:
 		pos_save = np.zeros((self.N,2,Nt+1))
 		pos_save[:,:,0] = self.pos
 		
-		# prep figure
-		fig = plt.figure(figsize=(12,12), dpi=80)
-		grid = plt.GridSpec(3, 1, wspace=0.0, hspace=0.3)
-		ax1 = plt.subplot(grid[0:4,0])
-		
+
 		# Simulation Main Loop
 		for i in range(Nt):
 			# (1/2) kick
@@ -104,27 +98,7 @@ class Environment:
 			
 			# plot in real time
 			if self.plotRealTime or (i == Nt-1):
-
-				plt.sca(ax1)
-				plt.cla()
-
-				# zip(*testList2)
-				plt.scatter(*zip(*self.food_dict.keys()),s=5,color='red')
-
-				# plt.scatter(self.foodPos[:,0],self.foodPos[:,1],s=5,color='red')
-
-				xx = pos_save[:,0,max(i-50,0):i+1]
-				yy = pos_save[:,1,max(i-50,0):i+1]
-
-				plt.scatter(xx,yy,s=1,color=[.7,.7,1])
-				plt.scatter(self.pos[:,0],self.pos[:,1],s=20,color='blue')
-
-				ax1.set(xlim=(-self.gridsize, self.gridsize), ylim=(-self.gridsize, self.gridsize))
-				ax1.set_aspect('equal', 'box')
-				ax1.set_xticks(list(range(-int(self.gridsize), int(self.gridsize) + 1, int(self.gridsize/5))))
-				ax1.set_yticks(list(range(-int(self.gridsize), int(self.gridsize) + 1, int(self.gridsize/5))))
-				
-				plt.pause(0.001)
+				self.viz.display(self.pos, self.food_dict)
 		
 		return 0
 
