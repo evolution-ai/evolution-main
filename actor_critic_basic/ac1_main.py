@@ -9,6 +9,7 @@ from tensorflow.keras.layers import Dense
 import gym
 from tensorflow.keras.optimizers import Adam
 import tensorflow_probability as tfp
+import time
 
 # from utils import plot_learning_curve
 
@@ -17,10 +18,12 @@ from ac1_actors import Agent
 
 if __name__ == '__main__':
 
+    to_render = False
+
     env = gym.make('CartPole-v0')
 
     agent = Agent(alpha = 1e-5, n_actions=env.action_space.n)
-    n_games = 400
+    n_games = 3
 
     filename = 'cartpole.png'
     figure_file = 'plots/' + filename
@@ -40,6 +43,10 @@ if __name__ == '__main__':
         score = 0
 
         while not done:
+
+            if to_render:
+                env.render()
+                time.sleep(0.002)
 
             action = agent.choose_action(observation)
             observation_n, reward, done, info = env.step(action)
@@ -64,12 +71,16 @@ if __name__ == '__main__':
 
         print('episode ', i, 'score %.1f' % score, 'avg_score %.1f' % avg_score)
 
-    x = [i+1 for i in range(n_games)]
-    plt.plot(x, avg_score_history)
-    plt.xlabel('Episodes')
-    plt.ylabel('Score')
-    plt.show()
-    plt.savefig('score_history.png')
+
+    if to_render:
+        env.close()
+
+    # x = [i+1 for i in range(n_games)]
+    # plt.plot(x, avg_score_history)
+    # plt.xlabel('Episodes')
+    # plt.ylabel('Score')
+    # plt.show()
+    # plt.savefig('score_history.png')
     # plot_learning_curve(x, score_history, figure_file)
     print(score_history)
 
