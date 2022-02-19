@@ -3,7 +3,10 @@ import numpy as np
 # import matplotlib.pyplot as plt
 import pygame as pg
 from visualizer import Visualizer
+import csv
+import os
 
+__PRINT_TO_CSV__ = True 
 
 class Environment:
 	def __init__(self):
@@ -18,13 +21,21 @@ class Environment:
 		self.gridsize = 100.0
 		self.viz = Visualizer()
 
-		self.foodN = 150
+		self.foodN = 10
 		self.food_dict = dict()
 
 		self.initialize_positions()
 		self.initialize_agents()
 		self.initialize_food()
 		
+		if __PRINT_TO_CSV__:
+			if os.path.exists('output.csv'):
+				self.f = open('output.csv', 'a')
+				self.csv = csv.writer(self.f)
+			else:
+				self.f = open('output.csv', 'w')
+				self.csv = csv.writer(self.f)
+				self.csv.writerow(["rx1", "ry1", "rx2", "ry2", "rx3", "ry3","rx4", "ry4","rx5", "ry5", "ax", "ay", "to_eat"])
 		pass
 
 	def initialize_agents(self):
@@ -50,10 +61,13 @@ class Environment:
 
 		acc = np.zeros((self.N,2))
 		for i, agent in enumerate(self.agents):
-			(acc[i], to_eat_action) = agent.determine_next_move(self.food_dict)
-
+			(acc[i], to_eat_action, rel_pos) = agent.determine_next_move(self.food_dict)
+			row = rel_pos
+			row.extend([acc[i][0], acc[i][1], to_eat_action[0]])
+			self.csv.writerow(row)
 			if to_eat_action[0]:
-				self.food_dict.pop(to_eat_action[1])
+				food_energy = self.food_dict.pop(to_eat_action[1])
+				agent.energy += food_energy
 
 		return acc
 		
@@ -98,7 +112,7 @@ class Environment:
 			
 			# plot in real time
 			if self.plotRealTime or (i == Nt-1):
-				self.viz.display(self.pos, self.food_dict)
+				self.viz.display(self.agents, self.food_dict)
 		
 		return 0
 

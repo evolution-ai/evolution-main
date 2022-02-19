@@ -16,18 +16,18 @@ class Visualizer:
     def __init__(self):
         self.painter = Painter()
         
-    def display(self, agents_pos, food_dict):
+    def display(self, agents_lst, food_dict):
         self.painter.clear_display()
 
-        for i in range(agents_pos.shape[0]):
-            norm_x = (agents_pos[i][0]*4)+400
-            norm_y = (agents_pos[i][1]*4)+400
-            self.painter.draw((AGENT, (norm_x, norm_y)))
+        for agent in agents_lst:
+            norm_x = (agent.pos[0]*4)+400
+            norm_y = (agent.pos[1]*4)+400
+            self.painter.draw((AGENT, (norm_x, norm_y), {"energy" : agent.energy, "max_energy" : agent.max_energy}))
 
         for food_pos in food_dict.keys():
             norm_x = (food_pos[0]*4)+400
             norm_y = (food_pos[1]*4)+400
-            self.painter.draw((FOOD, (norm_x, norm_y)))
+            self.painter.draw((FOOD, (norm_x, norm_y), {}))
 
         self.painter.paint()
 
@@ -62,12 +62,17 @@ class Painter:
     
     def draw(self, drawing):
         if drawing[0] == AGENT:
-                self.draw_agent(drawing[1])
+                self.draw_agent(drawing[1], drawing[2])
         elif drawing[0] == FOOD:
                 self.draw_food(drawing[1])
 
     def draw_food(self, pos):
         pygame.draw.circle(self.surface, (255,0,0), pos, 1)
 
-    def draw_agent(self, pos):
+    def draw_agent(self, pos, args):
         pygame.draw.circle(self.surface, (0,0,255), pos, 3)
+        self.draw_health_bar(pos, args["energy"], args["max_energy"])
+
+    def draw_health_bar(self, pos, energy, max_energy): 
+        pygame.draw.rect(self.surface, (255,0,0), pygame.Rect((pos[0], pos[1]), (1*int(max_energy), 6)))
+        pygame.draw.rect(self.surface, (0,255,0), pygame.Rect((pos[0], pos[1]), (1*int(energy), 6)))
