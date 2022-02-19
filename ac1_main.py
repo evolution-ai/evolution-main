@@ -27,6 +27,7 @@ if __name__ == '__main__':
 
     best_score = env.reward_range[0]
     score_history = []
+    avg_score_history = []
     load_checkpoint = False
 
     if load_checkpoint:
@@ -52,7 +53,7 @@ if __name__ == '__main__':
 
         score_history.append(score)
         avg_score = np.mean(score_history[-100:])
-
+        avg_score_history.append(avg_score)
 
         if avg_score > best_score:
 
@@ -63,10 +64,13 @@ if __name__ == '__main__':
 
         print('episode ', i, 'score %.1f' % score, 'avg_score %.1f' % avg_score)
 
-    x = [i+i for i in range(n_games)]
+    x = [i+1 for i in range(n_games)]
+    plt.plot(x, avg_score)
+    plt.xlabel('Episodes')
+    plt.ylabel('Score')
+    plt.show()
+    plt.savefig('score_history.png')
     # plot_learning_curve(x, score_history, figure_file)
     print(score_history)
-
-
 
 
