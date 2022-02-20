@@ -6,7 +6,7 @@ from visualizer import Visualizer
 import csv
 import os
 
-__PRINT_TO_CSV__ = True 
+__PRINT_TO_CSV__ = False 
 
 class Environment:
 	def __init__(self):
@@ -64,7 +64,7 @@ class Environment:
 			(acc[i], to_eat_action, rel_pos) = agent.determine_next_move(self.food_dict)
 			row = rel_pos
 			row.extend([acc[i][0], acc[i][1], to_eat_action[0]])
-			self.csv.writerow(row)
+			self.csv.writerow(row) if __PRINT_TO_CSV__ else False
 			if to_eat_action[0]:
 				food_energy = self.food_dict.pop(to_eat_action[1])
 				agent.energy += food_energy
