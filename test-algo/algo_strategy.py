@@ -20,6 +20,7 @@ Advanced strategy tips:
 """
 
 class AlgoStrategy(gamelib.AlgoCore):
+
     def __init__(self):
         super().__init__()
         seed = random.randrange(maxsize)
@@ -58,8 +59,7 @@ class AlgoStrategy(gamelib.AlgoCore):
         gamelib.debug_write('Performing turn {} of your custom algo strategy'.format(game_state.turn_number))
         game_state.suppress_warnings(True)  #Comment or remove this line to enable warnings.
 
-        # self.starter_strategy(game_state)
-
+        self.starter_strategy(game_state)
         game_state.submit_turn()
 
 
