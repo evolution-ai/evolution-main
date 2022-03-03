@@ -113,62 +113,13 @@ class AlgoStrategy(gamelib.AlgoCore):
 			# refer to that image for my bs names
 			# TODO: FUNCTIONALISE THIS CODE FOR EASY READING
 			if game_state.get_resource(MP) < defend_threshold:
-
-				# spawn priority:
-
-				# green stuff (outside this function)
-
-				# blue wall (temp walls)
-
-				# yellow wall
-				# yellow turret
-
-				# pink wall layer 1
-
-				# upgrade yellow turrets
-
-				# yellow permanent supports
-				# pink wall layer 2
-
-				# upgrade yellow walls
-				# upgrade permanent support
-
-				temp_wall_locations = [[ 0, 13],[ 1, 13],[ 26, 13],[ 27, 13],[ 1, 12],[ 26, 12]]
-				game_state.attempt_spawn(WALL, temp_wall_locations)
-
-				yellow_walls_locations = [[5, 13], [22, 13], [5, 12], [22, 12], [5, 11], [6, 11], [21, 11], [22, 11]]
-				game_state.attempt_spawn(WALL, yellow_walls_locations)
-
-				yellow_turrets_locations = [[7, 10], [11, 10], [16, 10], [20, 10]]
-				game_state.attempt_spawn(TURRET, yellow_turrets_locations)
-
-				# right now only one layer of pink
-				pink_wall_locations = [[7, 11], [8, 11], [9, 11], [10, 11], [11, 11], [12, 11], [13, 11], [14, 11], [15, 11], [16, 11], [17, 11], [18, 11], [19, 11], [20, 11], [6, 10], [8, 10], [9, 10], [10, 10], [12, 10], [13, 10], [14, 10], [15, 10], [17, 10], [18, 10], [19, 10], [21, 10]]
-				game_state.attempt_spawn(WALL, pink_wall_locations)
-
-				perm_turret_locations = [[ 3, 12],[ 4, 12],[ 23, 12],[ 24, 12]]
-				game_state.attempt_upgrade(perm_turret_locations)
-
-				game_state.attempt_upgrade(yellow_turrets_locations)
-
-				yellow_support_locations = [[13, 4], [14, 4]]
-				game_state.attempt_spawn(SUPPORT, yellow_support_locations)
-
-				perm_wall_locations = [[ 2, 13],[ 3, 13],[ 4, 13],[ 23, 13],[ 24, 13],[ 25, 13]]
-				game_state.attempt_upgrade(temp_wall_locations)
-				game_state.attempt_upgrade(perm_wall_locations)
-				
-				game_state.attempt_upgrade(yellow_walls_locations)
-				game_state.attempt_upgrade(yellow_support_locations)
-
-				yellow_extra_support_locations = [[12, 5], [13, 5], [14, 5], [15, 5]]
-				game_state.attempt_spawn(SUPPORT, yellow_extra_support_locations)
-				game_state.attempt_upgrade(yellow_extra_support_locations)
-
+				self.place_mid_game_defense(game_state)
 
 			else:
-
 				if not self.attack_state:
+
+					self.place_mid_game_defense(game_state)
+
 					# prepare
 					left_corner_coords = [[0, 13], [1, 13], [1, 12], [1, 15], [0, 14], [1, 14]]
 					right_corner_coords = [[26, 13], [27, 13], [26, 12], [26, 15], [26, 14], [27, 14]]
@@ -191,8 +142,9 @@ class AlgoStrategy(gamelib.AlgoCore):
 
 					game_state.attempt_remove(temp_left_wall_locations)
 
-					pink_walls_layer_two_locations = [[6, 10], [8, 10], [9, 10], [10, 10], [12, 10], [13, 10], [14, 10], [15, 10], [17, 10], [18, 10], [19, 10], [21, 10]]
-					game_state.attempt_remove(pink_walls_layer_two_locations)
+					if game_state.get_resource(SP) < 20:
+						pink_walls_layer_two_locations = [[6, 10], [8, 10], [9, 10], [10, 10], [12, 10], [13, 10], [14, 10], [15, 10], [17, 10], [18, 10], [19, 10], [21, 10]]
+						game_state.attempt_remove(pink_walls_layer_two_locations)
 
 					self.attack_state = 1
 				else:
@@ -228,7 +180,65 @@ class AlgoStrategy(gamelib.AlgoCore):
 
 			# support_locations = [[ 12, 4],[ 13, 4],[ 14, 4],[ 15, 4],[ 12, 3],[ 13, 3],[ 14, 3],[ 15, 3],[ 13, 2],[ 14, 2]]
 			# game_state.attempt_spawn(SUPPORT, support_locations)
+	
+
+	def place_mid_game_defense(self, game_state):
+		# spawn priority:
+
+		# green stuff (outside this function)
+
+		# blue wall (temp walls)
+
+		# yellow wall
+		# yellow turret
+
+		# pink wall layer 1
+
+		# upgrade yellow turrets
+
+		# yellow permanent supports
+		# pink wall layer 2
+
+		# upgrade yellow walls
+		# upgrade permanent support
+
+		temp_wall_locations = [[ 0, 13],[ 1, 13],[ 26, 13],[ 27, 13],[ 1, 12],[ 26, 12]]
+		game_state.attempt_spawn(WALL, temp_wall_locations)
+
+		yellow_walls_locations = [[5, 13], [22, 13], [5, 12], [22, 12], [5, 11], [6, 11], [21, 11], [22, 11]]
+		game_state.attempt_spawn(WALL, yellow_walls_locations)
+
+		yellow_turrets_locations = [[7, 10], [11, 10], [16, 10], [20, 10]]
+		game_state.attempt_spawn(TURRET, yellow_turrets_locations)
+
+		# right now only one layer of pink
+		pink_wall_locations = [[7, 11], [8, 11], [9, 11], [10, 11], [11, 11], [12, 11], [13, 11], [14, 11], [15, 11], [16, 11], [17, 11], [18, 11], [19, 11], [20, 11], [6, 10], [8, 10], [9, 10], [10, 10], [12, 10], [13, 10], [14, 10], [15, 10], [17, 10], [18, 10], [19, 10], [21, 10]]
+		game_state.attempt_spawn(WALL, pink_wall_locations)
+
+		perm_turret_locations = [[ 3, 12],[ 4, 12],[ 23, 12],[ 24, 12]]
+		game_state.attempt_upgrade(perm_turret_locations)
+
+		game_state.attempt_upgrade(yellow_turrets_locations)
+
+		yellow_support_locations = [[13, 4], [14, 4]]
+		game_state.attempt_spawn(SUPPORT, yellow_support_locations)
+
+		perm_wall_locations = [[ 2, 13],[ 3, 13],[ 4, 13],[ 23, 13],[ 24, 13],[ 25, 13]]
+		game_state.attempt_upgrade(temp_wall_locations)
+		game_state.attempt_upgrade(perm_wall_locations)
 		
+		game_state.attempt_upgrade(yellow_walls_locations)
+		game_state.attempt_upgrade(yellow_support_locations)
+
+		yellow_extra_support_locations = [[12, 5], [13, 5], [14, 5], [15, 5]]
+		game_state.attempt_spawn(SUPPORT, yellow_extra_support_locations)
+
+		game_state.attempt_upgrade(pink_wall_locations)
+		game_state.attempt_upgrade(yellow_extra_support_locations)
+
+
+
+
 
 
 	def build_perm_defences(self, game_state):
