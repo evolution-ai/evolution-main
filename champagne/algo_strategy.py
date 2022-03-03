@@ -85,8 +85,11 @@ class AlgoStrategy(gamelib.AlgoCore):
         # Now build reactive defenses based on where the enemy scored
         # self.build_reactive_defense(game_state)
 
+        if game_state.turn_number == 0:
+            self.setup_walls(game_state)
+
         # If the turn is less than 3, stall with interceptors and wait to see enemy's base
-        if game_state.turn_number < 3:
+        if game_state.turn_number < 6:
             self.stall_with_interceptors(game_state)
 
             # TODO: BUILD RANDOM JUKEBOX DEFENSES
@@ -117,10 +120,9 @@ class AlgoStrategy(gamelib.AlgoCore):
 
 
 
-
-
-# temp_wall_locations = [[ 0, 13],[ 1, 13],[ 26, 13],[ 27, 13],[ 1, 12],[ 26, 12],[ 2, 11],[ 25, 11]]
-# game_state.attempt_spawn(WALL, temp_wall_locations)
+    def setup_walls(self, game_state):
+        temp_wall_locations = [[ 0, 13],[ 1, 13],[ 26, 13],[ 27, 13],[ 1, 12],[ 26, 12]]
+        game_state.attempt_spawn(WALL, temp_wall_locations)
 
 
     def build_perm_defences(self, game_state):
@@ -155,7 +157,7 @@ class AlgoStrategy(gamelib.AlgoCore):
         # # since we can't deploy units there.
         # deploy_locations = self.filter_blocked_locations(friendly_edges, game_state)
         
-        deploy_locations = [[6, 7], [21, 7]]
+        deploy_locations = [[9, 4], [18, 4]]
         # While we have remaining MP to spend lets send out interceptors randomly.
         for location in deploy_locations:
             # Choose a random deploy location.
@@ -169,17 +171,20 @@ class AlgoStrategy(gamelib.AlgoCore):
         # pick random location
         # spawn there
         # immediately remove
+
+        self.setup_walls(game_state)
+
         while game_state.get_resource(SP) >= 3:
 
-            random_x = random.randint(6, 21)
+            random_x = random.randint(5, 22)
             wall_location = [random_x, 12]
             turret_location = [random_x, 11]
 
             game_state.attempt_spawn(WALL, wall_location)
             game_state.attempt_spawn(TURRET, turret_location)
             
-            game_state.attempt_remove(wall_location)
-            game_state.attempt_remove(turret_location)
+            # game_state.attempt_remove(wall_location)
+            # game_state.attempt_remove(turret_location)
             
 
 
