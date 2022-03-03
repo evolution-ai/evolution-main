@@ -108,7 +108,7 @@ class AlgoStrategy(gamelib.AlgoCore):
 			# MP > thresh -> prepare
 			# attack = 1 -> attack
 
-			defend_threshold = 30
+			defend_threshold = 16
 
 			# refer to that image for my bs names
 			# TODO: FUNCTIONALISE THIS CODE FOR EASY READING
@@ -148,17 +148,22 @@ class AlgoStrategy(gamelib.AlgoCore):
 
 				perm_turret_locations = [[ 3, 12],[ 4, 12],[ 23, 12],[ 24, 12]]
 				game_state.attempt_upgrade(perm_turret_locations)
-				
-				perm_wall_locations = [[ 2, 13],[ 3, 13],[ 4, 13],[ 23, 13],[ 24, 13],[ 25, 13]]
-				game_state.attempt_upgrade(perm_wall_locations)
 
 				game_state.attempt_upgrade(yellow_turrets_locations)
 
 				yellow_support_locations = [[13, 4], [14, 4]]
 				game_state.attempt_spawn(SUPPORT, yellow_support_locations)
+
+				perm_wall_locations = [[ 2, 13],[ 3, 13],[ 4, 13],[ 23, 13],[ 24, 13],[ 25, 13]]
+				game_state.attempt_upgrade(temp_wall_locations)
+				game_state.attempt_upgrade(perm_wall_locations)
 				
 				game_state.attempt_upgrade(yellow_walls_locations)
 				game_state.attempt_upgrade(yellow_support_locations)
+
+				yellow_extra_support_locations = [[12, 5], [13, 5], [14, 5], [15, 5]]
+				game_state.attempt_spawn(SUPPORT, yellow_extra_support_locations)
+				game_state.attempt_upgrade(yellow_extra_support_locations)
 
 
 			else:
@@ -181,8 +186,8 @@ class AlgoStrategy(gamelib.AlgoCore):
 					
 
 					# TODO: PICK THE BETTER SIDE
-					temp_left_wall_locations = [[ 0, 13],[ 1, 13],[ 26, 13],[ 27, 13],[ 1, 12],[ 26, 12]]
-					temp_right_wall_locations = [[ 0, 13],[ 1, 13],[ 26, 13],[ 27, 13],[ 1, 12],[ 26, 12]]
+					temp_left_wall_locations = [[ 0, 13],[ 1, 13],[ 1, 12]]
+					temp_right_wall_locations = [[ 26, 13],[ 27, 13],[ 26, 12]]
 
 					game_state.attempt_remove(temp_left_wall_locations)
 
@@ -192,17 +197,15 @@ class AlgoStrategy(gamelib.AlgoCore):
 					self.attack_state = 1
 				else:
 					# ATTACK MFFFFF DIEEEE XD
-					attack_channel_wall = [[5, 10], [6, 9], [7, 8], [8, 7], [9, 6], [10, 5], [11, 4], [12, 3], [15, 3], [13, 2], [14, 2], [16, 2]]
+					attack_channel_wall = [[5, 10], [6, 9], [7, 8], [8, 7], [9, 6], [10, 5], [11, 4], [12, 3], [15, 3], [13, 2], [14, 2], [16, 3], [17, 3]]
 					
 					game_state.attempt_spawn(WALL, attack_channel_wall)
 					game_state.attempt_remove(attack_channel_wall)
 
-					game_state.attempt_spawn(SCOUT, [14, 0], 4)
-					game_state.attempt_spawn(SCOUT, [15, 1], 1000)
+					game_state.attempt_spawn(SCOUT, [14, 0], 5)
+					game_state.attempt_spawn(SCOUT, [16, 2], 1000)
 
 					self.attack_state = 0
-
-
 
 
 
@@ -243,11 +246,6 @@ class AlgoStrategy(gamelib.AlgoCore):
 		perm_wall_locations = [[ 2, 13],[ 3, 13],[ 4, 13],[ 23, 13],[ 24, 13],[ 25, 13]]
 		game_state.attempt_spawn(WALL, perm_wall_locations)
 
-		#TODO: FIND PARAMETERS TO ALLOW FOR UPGRADE
-		if game_state.turn_number >= self.mid_phase and game_state.get_resource(SP) > 20:
-			game_state.attempt_upgrade(perm_turret_locations)
-			game_state.attempt_upgrade(perm_wall_locations)
-
 
 
 	def stall_with_interceptors(self, game_state):
@@ -272,12 +270,12 @@ class AlgoStrategy(gamelib.AlgoCore):
 			units can occupy the same space.
 			"""
 
-		temp_wall_locations = [[ 0, 13],[ 1, 13],[ 26, 13],[ 27, 13],[ 1, 12],[ 26, 12]]
+		temp_wall_locations = [[ 0, 13],[ 1, 13],[ 26, 13],[ 27, 13]]
 		game_state.attempt_spawn(WALL, temp_wall_locations)
 
 		while game_state.get_resource(SP) >= 3:
 
-			random_x = random.randint(5, 22)
+			random_x = random.randint(6, 21)
 			wall_location = [random_x, 12]
 			turret_location = [random_x, 11]
 
