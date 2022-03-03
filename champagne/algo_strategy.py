@@ -61,6 +61,8 @@ class AlgoStrategy(gamelib.AlgoCore):
         gamelib.debug_write('Performing turn {} of your custom algo strategy'.format(game_state.turn_number))
         game_state.suppress_warnings(True)  #Comment or remove this line to enable warnings.
 
+        #TODO: seperate gameplay by game stage (or game state)
+
         self.starter_strategy(game_state)
         game_state.submit_turn()
 
@@ -78,13 +80,17 @@ class AlgoStrategy(gamelib.AlgoCore):
         If there are no stationary units to attack in the front, we will send Scouts to try and score quickly.
         """
         # First, place basic defenses
-        self.build_defences(game_state)
-        # Now build reactive defenses based on where the enemy scored
-        self.build_reactive_defense(game_state)
+        self.build_perm_defences(game_state)
 
-        # If the turn is less than 5, stall with interceptors and wait to see enemy's base
+        # Now build reactive defenses based on where the enemy scored
+        # self.build_reactive_defense(game_state)
+
+        # If the turn is less than 3, stall with interceptors and wait to see enemy's base
         if game_state.turn_number < 3:
             self.stall_with_interceptors(game_state)
+
+            # TODO: BUILD RANDOM JUKEBOX DEFENSES
+
 
         else:
             # Now let's analyze the enemy base to see where their defenses are concentrated.
@@ -111,43 +117,29 @@ class AlgoStrategy(gamelib.AlgoCore):
 
 
 
-    def build_defences(self, game_state):
+
+
+# temp_wall_locations = [[ 0, 13],[ 1, 13],[ 26, 13],[ 27, 13],[ 1, 12],[ 26, 12],[ 2, 11],[ 25, 11]]
+# game_state.attempt_spawn(WALL, temp_wall_locations)
+
+
+    def build_perm_defences(self, game_state):
         """
         Build basic defenses using hardcoded locations.
         Remember to defend corners and avoid placing units in the front where enemy demolishers can attack them.
         """
-        # Useful tool for setting up your base locations: https://www.kevinbai.design/terminal-map-maker
-        # More community tools available at: https://terminal.c1games.com/rules#Download
-
-        # Place turrets that attack enemy units
-        # turret_locations = [[0, 13], [27, 13], [8, 11], [19, 11], [13, 11], [14, 11]]
-
-        turret_locations = [[ 3, 12],[ 24, 12],[ 6, 11],[ 21, 11],[ 9, 10],[ 12, 10],[ 15, 10],[ 18, 10]]
+        # Place turrets that attack enemy units on the corners
+        perm_turret_locations = [[ 3, 12],[ 4, 12],[ 23, 12],[ 24, 12]]
 
         # attempt_spawn will try to spawn units if we have resources, and will check if a blocking unit is already there
-        game_state.attempt_spawn(TURRET, turret_locations)
+        game_state.attempt_spawn(TURRET, perm_turret_locations)
         
-        # Place walls in front of turrets to soak up damage for them
-        # wall_locations = [[8, 12], [19, 12]]
+        # Place walls in the corners to prevent attacks
+        perm_wall_locations = [[ 2, 13],[ 3, 13],[ 4, 13],[ 23, 13],[ 24, 13],[ 25, 13]]
+        game_state.attempt_spawn(WALL, perm_wall_locations)
 
-        wall_locations = [[ 0, 13],[ 1, 13],[ 2, 13],[ 3, 13],[ 24, 13],[ 25, 13],[ 26, 13],[ 27, 13],[ 1, 12],[ 4, 12],[ 5, 12],[ 22, 12],[ 23, 12],[ 26, 12],[ 7, 11],[ 8, 11],[ 10, 11],[ 11, 11],[ 13, 11],[ 14, 11],[ 16, 11],[ 17, 11],[ 19, 11],[ 20, 11]]
-
-        game_state.attempt_spawn(WALL, wall_locations)
-        # upgrade walls so they soak more damage
-        game_state.attempt_upgrade(wall_locations)
-
-
-
-    def build_reactive_defense(self, game_state):
-        """
-        This function builds reactive defenses based on where the enemy scored on us from.
-        We can track where the opponent scored by looking at events in action frames 
-        as shown in the on_action_frame function
-        """
-        for location in self.scored_on_locations:
-            # Build turret one space above so that it doesn't block our own edge spawn locations
-            build_location = [location[0], location[1]+1]
-            game_state.attempt_spawn(TURRET, build_location)
+        #TODO: FIND PARAMETERS TO ALLOW FOR UPGRADE
+        # game_state.attempt_upgrade(perm_wall_locations)
 
 
 
@@ -155,24 +147,32 @@ class AlgoStrategy(gamelib.AlgoCore):
         """
         Send out interceptors at random locations to defend our base from enemy moving units.
         """
-        # We can spawn moving units on our edges so a list of all our edge locations
-        friendly_edges = game_state.game_map.get_edge_locations(game_state.game_map.BOTTOM_LEFT) + game_state.game_map.get_edge_locations(game_state.game_map.BOTTOM_RIGHT)
+        # TODO: there has to be a better way
+        # # We can spawn moving units on our edges so a list of all our edge locations
+        # friendly_edges = game_state.game_map.get_edge_locations(game_state.game_map.BOTTOM_LEFT) + game_state.game_map.get_edge_locations(game_state.game_map.BOTTOM_RIGHT)
         
-        # Remove locations that are blocked by our own structures 
-        # since we can't deploy units there.
-        deploy_locations = self.filter_blocked_locations(friendly_edges, game_state)
+        # # Remove locations that are blocked by our own structures 
+        # # since we can't deploy units there.
+        # deploy_locations = self.filter_blocked_locations(friendly_edges, game_state)
         
+        deploy_locations = [[6, 7], [21, 7]]
         # While we have remaining MP to spend lets send out interceptors randomly.
-        while game_state.get_resource(MP) >= game_state.type_cost(INTERCEPTOR)[MP] and len(deploy_locations) > 0:
+        for location in deploy_locations:
             # Choose a random deploy location.
-            deploy_index = random.randint(0, len(deploy_locations) - 1)
-            deploy_location = deploy_locations[deploy_index]
-            
-            game_state.attempt_spawn(INTERCEPTOR, deploy_location)
+            game_state.attempt_spawn(INTERCEPTOR, location)
             """
             We don't have to remove the location since multiple mobile 
             units can occupy the same space.
             """
+
+        # while we have points
+        # pick random location
+        # spawn there
+        # immediately remove
+
+        while game_state.SP >= 3:
+            
+
 
 
     def demolisher_line_strategy(self, game_state):
