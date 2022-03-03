@@ -50,8 +50,9 @@ class AlgoStrategy(gamelib.AlgoCore):
 		# 0 -> don't attack
 		# 1 -> ATTACKKKKKK MFFFFFFFF DIEEEEEEEE :)
 		self.attack_state = 0
-
+		
 		self.mid_phase = 4
+		self.late_phase = 0
 
 
 	def on_turn(self, turn_state):
@@ -66,27 +67,7 @@ class AlgoStrategy(gamelib.AlgoCore):
 
 		gamelib.debug_write('Performing turn {} of your custom algo strategy'.format(game_state.turn_number))
 		game_state.suppress_warnings(True)  #Comment or remove this line to enable warnings.
-
-		#TODO: seperate gameplay by game stage (or game state)
-
-		self.starter_strategy(game_state)
-		game_state.submit_turn()
-
-
-	"""
-	NOTE: All the methods after this point are part of the sample starter-algo
-	strategy and can safely be replaced for your custom algo.
-	"""
-
-	def starter_strategy(self, game_state):
-		"""
-		For defense we will use a spread out layout and some interceptors early on.
-		We will place turrets near locations the opponent managed to score on.
-		For offense we will use long range demolishers if they place stationary units near the enemy's front.
-		If there are no stationary units to attack in the front, we will send Scouts to try and score quickly.
-		"""
-
-
+		
 		if game_state.turn_number == 0:
 			self.opening_strategy(game_state)
 
@@ -99,8 +80,13 @@ class AlgoStrategy(gamelib.AlgoCore):
 
 		else:
 			self.mid_game_strategy(game_state)
+		game_state.submit_turn()
 
-			
+
+
+
+
+
 
 	def clear_early_game(game_state):
 		points_to_remove = [[5, 12], [6, 12], [7, 12], [8, 12], [9, 12], [10, 12], [11, 12], [12, 12], 
