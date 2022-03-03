@@ -156,22 +156,49 @@ class AlgoStrategy(gamelib.AlgoCore):
 
 				yellow_support_locations = [[13, 4], [14, 4]]
 				game_state.attempt_spawn(SUPPORT, yellow_support_locations)
-
-				game_state.attempt_spawn(SUPPORT, pink_wall_locations)
 				
 				game_state.attempt_upgrade(yellow_walls_locations)
 				game_state.attempt_upgrade(yellow_support_locations)
 
 
 			else:
+
 				if not self.attack_state:
 					# prepare
+					left_corner_coords = [[0, 13], [1, 13], [1, 12], [1, 15], [0, 14], [1, 14]]
+					right_corner_coords = [[26, 13], [27, 13], [26, 12], [26, 15], [26, 14], [27, 14]]
+					
+					left_damage = 0
+					right_damage = 0
+
+					for coord in left_corner_coords:
+						# Get number of enemy turrets that can attack each location and multiply by turret damage
+						left_damage += len(game_state.get_attackers(coord, 0)) * gamelib.GameUnit(TURRET, game_state.config).damage_i
+					
+					for coord in right_corner_coords:
+						# Get number of enemy turrets that can attack each location and multiply by turret damage
+						right_damage += len(game_state.get_attackers(coord, 0)) * gamelib.GameUnit(TURRET, game_state.config).damage_i
+					
+
+					# TODO: PICK THE BETTER SIDE
+					temp_left_wall_locations = [[ 0, 13],[ 1, 13],[ 26, 13],[ 27, 13],[ 1, 12],[ 26, 12]]
+					temp_right_wall_locations = [[ 0, 13],[ 1, 13],[ 26, 13],[ 27, 13],[ 1, 12],[ 26, 12]]
+
+					game_state.attempt_remove(temp_left_wall_locations)
+
+					pink_walls_layer_two_locations = [[6, 10], [8, 10], [9, 10], [10, 10], [12, 10], [13, 10], [14, 10], [15, 10], [17, 10], [18, 10], [19, 10], [21, 10]]
+					game_state.attempt_remove(pink_walls_layer_two_locations)
 
 					self.attack_state = 1
-
 				else:
 					# ATTACK MFFFFF DIEEEE XD
-					pass
+					attack_channel_wall = [[5, 10], [6, 9], [7, 8], [8, 7], [9, 6], [10, 5], [11, 4], [12, 3], [15, 3], [13, 2], [14, 2], [16, 2]]
+					
+					game_state.attempt_spawn(WALL, attack_channel_wall)
+					game_state.attempt_remove(attack_channel_wall)
+
+					game_state.attempt_spawn(SCOUT, [14, 0], 4)
+					game_state.attempt_spawn(SCOUT, [15, 1], 1000)
 
 					self.attack_state = 0
 
