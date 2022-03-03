@@ -85,101 +85,93 @@ class AlgoStrategy(gamelib.AlgoCore):
 		For offense we will use long range demolishers if they place stationary units near the enemy's front.
 		If there are no stationary units to attack in the front, we will send Scouts to try and score quickly.
 		"""
-		# First, place basic defenses
-		self.build_perm_defences(game_state)
 
-		# Now build reactive defenses based on where the enemy scored
-		# self.build_reactive_defense(game_state)
 
-		# If the turn is less than 4, stall with interceptors and wait to see enemy's base
-		if game_state.turn_number < self.mid_phase:
-			self.stall_with_interceptors(game_state)
+		if game_state.turn_number == 0:
+			self.opening_strategy(game_state)
+
+		elif game_state.turn_number < self.mid_phase:
+			self.early_game_strategy(game_state)
 
 		elif game_state.turn_number == self.mid_phase:
-			self.stall_with_interceptors(game_state)
-			points_to_remove = [[5, 12], [6, 12], [7, 12], [8, 12], [9, 12], [10, 12], [11, 12], [12, 12], [13, 12], [14, 12], [15, 12], [16, 12], [17, 12], [18, 12], [19, 12], [20, 12], [21, 12], [22, 12], [5, 11], [6, 11], [7, 11], [8, 11], [9, 11], [10, 11], [11, 11], [12, 11], [13, 11], [14, 11], [15, 11], [16, 11], [17, 11], [18, 11], [19, 11], [20, 11], [21, 11], [22, 11]]
-			game_state.attempt_remove(points_to_remove)
+			self.early_game_strategy(game_state)
+			self.clear_early_game(game_state)
 
 		else:
-
-			# TODO: attack, defend, prepare
-
-			# MP < thresh -> defend
-			# MP > thresh -> prepare
-			# attack = 1 -> attack
-
-			defend_threshold = 16
-
-			# refer to that image for my bs names
-			# TODO: FUNCTIONALISE THIS CODE FOR EASY READING
-			if game_state.get_resource(MP) < defend_threshold:
-				self.place_mid_game_defense(game_state)
-
-			else:
-				if not self.attack_state:
-
-					self.place_mid_game_defense(game_state)
-
-					# prepare
-					left_corner_coords = [[0, 13], [1, 13], [1, 12], [1, 15], [0, 14], [1, 14]]
-					right_corner_coords = [[26, 13], [27, 13], [26, 12], [26, 15], [26, 14], [27, 14]]
-					
-					left_damage = 0
-					right_damage = 0
-
-					for coord in left_corner_coords:
-						# Get number of enemy turrets that can attack each location and multiply by turret damage
-						left_damage += len(game_state.get_attackers(coord, 0)) * gamelib.GameUnit(TURRET, game_state.config).damage_i
-					
-					for coord in right_corner_coords:
-						# Get number of enemy turrets that can attack each location and multiply by turret damage
-						right_damage += len(game_state.get_attackers(coord, 0)) * gamelib.GameUnit(TURRET, game_state.config).damage_i
-					
-
-					# TODO: PICK THE BETTER SIDE
-					temp_left_wall_locations = [[ 0, 13],[ 1, 13],[ 1, 12]]
-					temp_right_wall_locations = [[ 26, 13],[ 27, 13],[ 26, 12]]
-
-					game_state.attempt_remove(temp_left_wall_locations)
-
-					if game_state.get_resource(SP) < 20:
-						pink_walls_layer_two_locations = [[6, 10], [8, 10], [9, 10], [10, 10], [12, 10], [13, 10], [14, 10], [15, 10], [17, 10], [18, 10], [19, 10], [21, 10]]
-						game_state.attempt_remove(pink_walls_layer_two_locations)
-
-					self.attack_state = 1
-				else:
-					# ATTACK MFFFFF DIEEEE XD
-					attack_channel_wall = [[5, 10], [6, 9], [7, 8], [8, 7], [9, 6], [10, 5], [11, 4], [12, 3], [15, 3], [13, 2], [14, 2], [16, 3], [17, 3]]
-					
-					game_state.attempt_spawn(WALL, attack_channel_wall)
-					game_state.attempt_remove(attack_channel_wall)
-
-					game_state.attempt_spawn(SCOUT, [14, 0], 9)
-					game_state.attempt_spawn(SCOUT, [16, 2], 1000)
-
-					self.attack_state = 0
-
-
-
-			pass
-
+			self.mid_game_strategy(game_state)
 
 			
-			# They don't have many units in the front so lets figure out their least defended area and send Scouts there.
-			# Only spawn Scouts every other turn
-			# Sending more at once is better since attacks can only hit a single scout at a time
 
-			# if game_state.turn_number % 2 == 1:
-			#     # To simplify we will just check sending them from back left and right
-			#     scout_spawn_location_options = [[13, 0], [14, 0]]
-			#     best_location = self.least_damage_spawn_location(game_state, scout_spawn_location_options)
-			#     game_state.attempt_spawn(SCOUT, best_location, 1000)
+	def clear_early_game(game_state):
+		points_to_remove = [[5, 12], [6, 12], [7, 12], [8, 12], [9, 12], [10, 12], [11, 12], [12, 12], 
+				[13, 12], [14, 12], [15, 12], [16, 12], [17, 12], [18, 12], [19, 12], [20, 12], [21, 12], 
+				[22, 12], [5, 11], [6, 11], [7, 11], [8, 11], [9, 11], [10, 11], [11, 11], [12, 11], [13, 11], 
+				[14, 11], [15, 11], [16, 11], [17, 11], [18, 11], [19, 11], [20, 11], [21, 11], [22, 11]]
+		game_state.attempt_remove(points_to_remove)
 
-			# # Lastly, if we have spare SP, let's build some supports
-			# # support_locations = [[13, 2], [14, 2], [13, 3], [14, 3]]
 
-			# support_locations = [[ 12, 4],[ 13, 4],[ 14, 4],[ 15, 4],[ 12, 3],[ 13, 3],[ 14, 3],[ 15, 3],[ 13, 2],[ 14, 2]]
-			# game_state.attempt_spawn(SUPPORT, support_locations)
+
+	def mid_game_strategy(self, game_state):
+		# TODO: attack, defend, prepare
+
+		# MP < thresh -> defend
+		# MP > thresh -> prepare
+		# attack = 1 -> attack
+
+		defend_threshold = 16
+
+		# refer to that image for my bs names
+		# TODO: FUNCTIONALISE THIS CODE FOR EASY READING
+		if game_state.get_resource(MP) < defend_threshold:
+			self.place_mid_game_defense(game_state)
+
+		else:
+			if not self.attack_state:
+
+				self.place_mid_game_defense(game_state)
+
+				# prepare
+				left_corner_coords = [[0, 13], [1, 13], [1, 12], [1, 15], [0, 14], [1, 14]]
+				right_corner_coords = [[26, 13], [27, 13], [26, 12], [26, 15], [26, 14], [27, 14]]
+				
+				left_damage = 0
+				right_damage = 0
+
+				for coord in left_corner_coords:
+					# Get number of enemy turrets that can attack each location and multiply by turret damage
+					left_damage += len(game_state.get_attackers(coord, 0)) * gamelib.GameUnit(TURRET, game_state.config).damage_i
+				
+				for coord in right_corner_coords:
+					# Get number of enemy turrets that can attack each location and multiply by turret damage
+					right_damage += len(game_state.get_attackers(coord, 0)) * gamelib.GameUnit(TURRET, game_state.config).damage_i
+				
+
+				# TODO: PICK THE BETTER SIDE
+				temp_left_wall_locations = [[ 0, 13],[ 1, 13],[ 1, 12]]
+				temp_right_wall_locations = [[ 26, 13],[ 27, 13],[ 26, 12]]
+
+				game_state.attempt_remove(temp_left_wall_locations)
+
+				if game_state.get_resource(SP) < 20:
+					pink_walls_layer_two_locations = [[6, 10], [8, 10], [9, 10], [10, 10], [12, 10], [13, 10], [14, 10], [15, 10], [17, 10], [18, 10], [19, 10], [21, 10]]
+					game_state.attempt_remove(pink_walls_layer_two_locations)
+
+				self.attack_state = 1
+			else:
+				# ATTACK MFFFFF DIEEEE XD
+				attack_channel_wall = [[5, 10], [6, 9], [7, 8], [8, 7], [9, 6], [10, 5], [11, 4], [12, 3], [15, 3], [13, 2], [14, 2], [16, 3], [17, 3]]
+				
+				game_state.attempt_spawn(WALL, attack_channel_wall)
+				game_state.attempt_remove(attack_channel_wall)
+
+				game_state.attempt_spawn(SCOUT, [14, 0], 9)
+				game_state.attempt_spawn(SCOUT, [16, 2], 1000)
+
+				self.attack_state = 0
+
+
+
+
 	
 
 	def place_mid_game_defense(self, game_state):
@@ -241,6 +233,8 @@ class AlgoStrategy(gamelib.AlgoCore):
 
 
 
+
+
 	def build_perm_defences(self, game_state):
 		"""
 		Build basic defenses using hardcoded locations.
@@ -258,7 +252,9 @@ class AlgoStrategy(gamelib.AlgoCore):
 
 
 
-	def stall_with_interceptors(self, game_state):
+
+
+	def early_game_strategy(self, game_state):
 		"""
 		Send out interceptors at random locations to defend our base from enemy moving units.
 		"""
@@ -271,14 +267,10 @@ class AlgoStrategy(gamelib.AlgoCore):
 		# deploy_locations = self.filter_blocked_locations(friendly_edges, game_state)
 		
 		deploy_locations = [[9, 4], [18, 4]]
-		# While we have remaining MP to spend lets send out interceptors randomly.
+		
 		for location in deploy_locations:
-			# Choose a random deploy location.
 			game_state.attempt_spawn(INTERCEPTOR, location)
-			"""
-			We don't have to remove the location since multiple mobile 
-			units can occupy the same space.
-			"""
+
 
 		temp_wall_locations = [[ 0, 13],[ 1, 13],[ 26, 13],[ 27, 13]]
 		game_state.attempt_spawn(WALL, temp_wall_locations)
