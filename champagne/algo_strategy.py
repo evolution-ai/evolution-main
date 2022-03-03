@@ -169,8 +169,17 @@ class AlgoStrategy(gamelib.AlgoCore):
         # pick random location
         # spawn there
         # immediately remove
+        while game_state.get_resource(SP) >= 3:
 
-        while game_state.SP >= 3:
+            random_x = random.randint(6, 21)
+            wall_location = [random_x, 12]
+            turret_location = [random_x, 11]
+
+            game_state.attempt_spawn(WALL, wall_location)
+            game_state.attempt_spawn(TURRET, turret_location)
+            
+            game_state.attempt_remove(wall_location)
+            game_state.attempt_remove(turret_location)
             
 
 
