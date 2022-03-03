@@ -54,7 +54,6 @@ class AlgoStrategy(gamelib.AlgoCore):
         game engine.
         """
         game_state = gamelib.GameState(self.config, turn_state)
-        # game_state.attempt_spawn(DEMOLISHER, [24, 10])
 
         gamelib.debug_write('Performing turn {} of your custom algo strategy'.format(game_state.turn_number))
         game_state.suppress_warnings(True)  #Comment or remove this line to enable warnings.
@@ -81,13 +80,15 @@ class AlgoStrategy(gamelib.AlgoCore):
         self.build_reactive_defense(game_state)
 
         # If the turn is less than 5, stall with interceptors and wait to see enemy's base
-        if game_state.turn_number < 5:
+        if game_state.turn_number < 3:
             self.stall_with_interceptors(game_state)
+
         else:
             # Now let's analyze the enemy base to see where their defenses are concentrated.
             # If they have many units in the front we can build a line for our demolishers to attack them at long range.
             if self.detect_enemy_unit(game_state, unit_type=None, valid_x=None, valid_y=[14, 15]) > 10:
                 self.demolisher_line_strategy(game_state)
+
             else:
                 # They don't have many units in the front so lets figure out their least defended area and send Scouts there.
 
@@ -100,8 +101,12 @@ class AlgoStrategy(gamelib.AlgoCore):
                     game_state.attempt_spawn(SCOUT, best_location, 1000)
 
                 # Lastly, if we have spare SP, let's build some supports
-                support_locations = [[13, 2], [14, 2], [13, 3], [14, 3]]
+                # support_locations = [[13, 2], [14, 2], [13, 3], [14, 3]]
+
+                support_locations = [[ 12, 4],[ 13, 4],[ 14, 4],[ 15, 4],[ 12, 3],[ 13, 3],[ 14, 3],[ 15, 3],[ 13, 2],[ 14, 2]]
                 game_state.attempt_spawn(SUPPORT, support_locations)
+
+
 
     def build_defences(self, game_state):
         """
@@ -112,15 +117,23 @@ class AlgoStrategy(gamelib.AlgoCore):
         # More community tools available at: https://terminal.c1games.com/rules#Download
 
         # Place turrets that attack enemy units
-        turret_locations = [[0, 13], [27, 13], [8, 11], [19, 11], [13, 11], [14, 11]]
+        # turret_locations = [[0, 13], [27, 13], [8, 11], [19, 11], [13, 11], [14, 11]]
+
+        turret_locations = [[ 3, 12],[ 24, 12],[ 6, 11],[ 21, 11],[ 9, 10],[ 12, 10],[ 15, 10],[ 18, 10]]
+
         # attempt_spawn will try to spawn units if we have resources, and will check if a blocking unit is already there
         game_state.attempt_spawn(TURRET, turret_locations)
         
         # Place walls in front of turrets to soak up damage for them
-        wall_locations = [[8, 12], [19, 12]]
+        # wall_locations = [[8, 12], [19, 12]]
+
+        wall_locations = [[ 0, 13],[ 1, 13],[ 2, 13],[ 3, 13],[ 24, 13],[ 25, 13],[ 26, 13],[ 27, 13],[ 1, 12],[ 4, 12],[ 5, 12],[ 22, 12],[ 23, 12],[ 26, 12],[ 7, 11],[ 8, 11],[ 10, 11],[ 11, 11],[ 13, 11],[ 14, 11],[ 16, 11],[ 17, 11],[ 19, 11],[ 20, 11]]
+
         game_state.attempt_spawn(WALL, wall_locations)
         # upgrade walls so they soak more damage
         game_state.attempt_upgrade(wall_locations)
+
+
 
     def build_reactive_defense(self, game_state):
         """
@@ -132,6 +145,8 @@ class AlgoStrategy(gamelib.AlgoCore):
             # Build turret one space above so that it doesn't block our own edge spawn locations
             build_location = [location[0], location[1]+1]
             game_state.attempt_spawn(TURRET, build_location)
+
+
 
     def stall_with_interceptors(self, game_state):
         """
@@ -156,6 +171,7 @@ class AlgoStrategy(gamelib.AlgoCore):
             units can occupy the same space.
             """
 
+
     def demolisher_line_strategy(self, game_state):
         """
         Build a line of the cheapest stationary unit so our demolisher can attack from long range.
@@ -178,6 +194,7 @@ class AlgoStrategy(gamelib.AlgoCore):
         # By asking attempt_spawn to spawn 1000 units, it will essentially spawn as many as we have resources for
         game_state.attempt_spawn(DEMOLISHER, [24, 10], 1000)
 
+
     def least_damage_spawn_location(self, game_state, location_options):
         """
         This function will help us guess which location is the safest to spawn moving units from.
@@ -197,6 +214,7 @@ class AlgoStrategy(gamelib.AlgoCore):
         # Now just return the location that takes the least damage
         return location_options[damages.index(min(damages))]
 
+
     def detect_enemy_unit(self, game_state, unit_type=None, valid_x = None, valid_y = None):
         total_units = 0
         for location in game_state.game_map:
@@ -206,12 +224,14 @@ class AlgoStrategy(gamelib.AlgoCore):
                         total_units += 1
         return total_units
         
+
     def filter_blocked_locations(self, locations, game_state):
         filtered = []
         for location in locations:
             if not game_state.contains_stationary_unit(location):
                 filtered.append(location)
         return filtered
+
 
     def on_action_frame(self, turn_string):
         """
