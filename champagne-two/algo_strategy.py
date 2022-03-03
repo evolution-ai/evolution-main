@@ -51,6 +51,8 @@ class AlgoStrategy(gamelib.AlgoCore):
 		# 1 -> ATTACKKKKKK MFFFFFFFF DIEEEEEEEE :)
 		self.attack_state = 0
 
+		self.mid_phase = 4
+
 
 	def on_turn(self, turn_state):
 		"""
@@ -90,12 +92,12 @@ class AlgoStrategy(gamelib.AlgoCore):
 		# self.build_reactive_defense(game_state)
 
 		# If the turn is less than 4, stall with interceptors and wait to see enemy's base
-		if game_state.turn_number < 4:
+		if game_state.turn_number < self.mid_phase:
 			self.stall_with_interceptors(game_state)
 
-		elif game_state.turn_number == 4:
+		elif game_state.turn_number == self.mid_phase:
 			self.stall_with_interceptors(game_state)
-			points_to_remove = [[5, 11], [6, 11], [7, 11], [8, 11], [9, 11], [10, 11], [11, 11], [12, 11], [13, 11], [14, 11], [15, 11], [16, 11], [17, 11], [18, 11], [19, 11], [20, 11], [21, 11], [22, 11], [5, 10], [6, 10], [7, 10], [8, 10], [9, 10], [10, 10], [11, 10], [12, 10], [13, 10], [14, 10], [15, 10], [16, 10], [17, 10], [18, 10], [19, 10], [20, 10], [21, 10], [22, 10]]
+			points_to_remove = [[5, 12], [6, 12], [7, 12], [8, 12], [9, 12], [10, 12], [11, 12], [12, 12], [13, 12], [14, 12], [15, 12], [16, 12], [17, 12], [18, 12], [19, 12], [20, 12], [21, 12], [22, 12], [5, 11], [6, 11], [7, 11], [8, 11], [9, 11], [10, 11], [11, 11], [12, 11], [13, 11], [14, 11], [15, 11], [16, 11], [17, 11], [18, 11], [19, 11], [20, 11], [21, 11], [22, 11]]
 			game_state.attempt_remove(points_to_remove)
 
 		else:
@@ -106,11 +108,11 @@ class AlgoStrategy(gamelib.AlgoCore):
 			# MP > thresh -> prepare
 			# attack = 1 -> attack
 
-			defend_threshold = 15
+			defend_threshold = 30
 
 			# refer to that image for my bs names
 			# TODO: FUNCTIONALISE THIS CODE FOR EASY READING
-			if game_state.get_resource(SP) < defend_threshold:
+			if game_state.get_resource(MP) < defend_threshold:
 
 				# spawn priority:
 
@@ -144,13 +146,22 @@ class AlgoStrategy(gamelib.AlgoCore):
 				pink_wall_locations = [[7, 11], [8, 11], [9, 11], [10, 11], [11, 11], [12, 11], [13, 11], [14, 11], [15, 11], [16, 11], [17, 11], [18, 11], [19, 11], [20, 11], [6, 10], [8, 10], [9, 10], [10, 10], [12, 10], [13, 10], [14, 10], [15, 10], [17, 10], [18, 10], [19, 10], [21, 10]]
 				game_state.attempt_spawn(WALL, pink_wall_locations)
 
+				perm_turret_locations = [[ 3, 12],[ 4, 12],[ 23, 12],[ 24, 12]]
+				game_state.attempt_upgrade(perm_turret_locations)
+				
+				perm_wall_locations = [[ 2, 13],[ 3, 13],[ 4, 13],[ 23, 13],[ 24, 13],[ 25, 13]]
+				game_state.attempt_upgrade(perm_wall_locations)
+
 				game_state.attempt_upgrade(yellow_turrets_locations)
 
-				yellow_support_locations = [[13, 2], [14, 2]]
-				game_state.attempt_spawn(WALL, yellow_support_locations)
+				yellow_support_locations = [[13, 4], [14, 4]]
+				game_state.attempt_spawn(SUPPORT, yellow_support_locations)
 
 				game_state.attempt_spawn(SUPPORT, pink_wall_locations)
+				
 				game_state.attempt_upgrade(yellow_walls_locations)
+				game_state.attempt_upgrade(yellow_support_locations)
+
 
 			else:
 				if not self.attack_state:
@@ -206,7 +217,7 @@ class AlgoStrategy(gamelib.AlgoCore):
 		game_state.attempt_spawn(WALL, perm_wall_locations)
 
 		#TODO: FIND PARAMETERS TO ALLOW FOR UPGRADE
-		if game_state.turn_number < 4 and game_state.get_resource(SP) > 30:
+		if game_state.turn_number >= self.mid_phase and game_state.get_resource(SP) > 20:
 			game_state.attempt_upgrade(perm_turret_locations)
 			game_state.attempt_upgrade(perm_wall_locations)
 
