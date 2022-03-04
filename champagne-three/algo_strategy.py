@@ -220,10 +220,13 @@ class AlgoStrategy(gamelib.AlgoCore):
 		# 8 upgrade outside pinks 
 		pink_wall_locations = [[6, 11], [7, 11], [8, 11], [9, 11], [10, 11], [11, 11], [12, 11], [13, 11], [14, 11], [15, 11], [16, 11], [17, 11], [18, 11], [19, 11], [20, 11], [21, 11]]
 		teal_turret_locations = [[8, 10], [12, 10], [15, 10], [19, 10]]
-		yellow_turret_locations = [[5, 11], [22, 11]]
+		yellow_turret_locations = [[5, 11], [22, 11], [4, 11], [23, 11]]
 		yellow_wall_locations = [[6, 10], [7, 10], [9, 10], [10, 10], [11, 10], [13, 10], [14, 10], [16, 10], [17, 10], [18, 10], [20, 10], [21, 10]]
 		orange_wall_locations = [[1, 12], [26, 12]]
 		
+		base_support_locations = [[13, 3], [14, 3]]
+		extra_support_locations = [[12, 4], [13, 4], [14, 4], [15, 4]]
+
 		# 24 points in pink 
 		game_state.attempt_spawn(WALL, pink_wall_locations)
 		# 4 turrets to put in green 
@@ -243,8 +246,14 @@ class AlgoStrategy(gamelib.AlgoCore):
 		
 		game_state.attempt_upgrade(pink_wall_locations)
 		game_state.attempt_upgrade(teal_turret_locations)
-
+		game_state.attempt_spawn(SUPPORT, base_support_locations)
+		
 		game_state.attempt_spawn(TURRET, orange_wall_locations)
+
+		game_state.attempt_spawn(SUPPORT, extra_support_locations)
+		game_state.attempt_upgrade(base_support_locations)
+		game_state.attempt_upgrade(extra_support_locations)
+		
 
 
 
@@ -272,13 +281,16 @@ class AlgoStrategy(gamelib.AlgoCore):
 		temp_left_wall_locations = [[ 0, 13],[ 1, 13],[ 1, 12]]
 		temp_right_wall_locations = [[ 26, 13],[ 27, 13],[ 26, 12]]
 
-		if left_damage < right_damage:
-			game_state.attempt_remove(temp_left_wall_locations)
-			self.attack_state = LEFT_KAMIKAZE
-		else:
-			game_state.attempt_remove(temp_right_wall_locations)
-			self.attack_state = RIGHT_KAMIKAZE
-
+		# if left_damage < right_damage:
+		# 	game_state.attempt_remove(temp_left_wall_locations)
+		# 	self.attack_state = LEFT_KAMIKAZE
+		# else:
+		# 	game_state.attempt_remove(temp_right_wall_locations)
+		# 	self.attack_state = RIGHT_KAMIKAZE
+		game_state.attempt_remove(temp_left_wall_locations)
+		self.attack_state = LEFT_KAMIKAZE
+		game_state.attempt_remove(yellow_wall_locations)
+		
 		if game_state.get_resource(SP) < 20:
 			# pink_walls_layer_two_locations = [[6, 10], [8, 10], [9, 10], [10, 10], [12, 10], [13, 10], [14, 10], [15, 10], [17, 10], [18, 10], [19, 10], [21, 10]]
 			game_state.attempt_remove(yellow_wall_locations)
@@ -293,10 +305,10 @@ class AlgoStrategy(gamelib.AlgoCore):
 
 		req_points = 10
 
-		interior_channel_wall_left = [[15, 3], [13, 2], [14, 2], [16, 2]]
+		interior_channel_wall_left = [[15, 3], [13, 2], [14, 2], [16, 3]]
 		game_state.attempt_spawn(WALL, interior_channel_wall_left)
 
-		attack_channel_wall_left = [[5, 10], [6, 9], [7, 8], [8, 7], [9, 6], [10, 5], [11, 4], [12, 3]]
+		attack_channel_wall_left = [[12, 3], [11, 4], [10, 5], [9, 6], [8, 7], [7, 8], [6, 9], [5, 10]]
 
 		for location in attack_channel_wall_left:
 			if game_state.get_resource(SP) > req_points + 3:
@@ -308,8 +320,11 @@ class AlgoStrategy(gamelib.AlgoCore):
 		game_state.attempt_remove(interior_channel_wall_left)
 		game_state.attempt_remove(attack_channel_wall_left)
 
-		game_state.attempt_spawn(INTERCEPTOR, [14, 0], 9)
-		game_state.attempt_spawn(INTERCEPTOR, [16, 2], 1000)
+		if game_state.turn_number < 50:
+			game_state.attempt_spawn(SCOUT, [14, 0], 9)
+			game_state.attempt_spawn(SCOUT, [16, 2], 1000)
+		else:
+			game_state.attempt_spawn(DEMOLISHER, [14, 0], 1000)
 
 		self.attack_state = DEFEND
 
