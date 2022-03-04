@@ -86,22 +86,26 @@ class AlgoStrategy(gamelib.AlgoCore):
 
 
 
+
+
 	def early_game_strategy(self, game_state):
 
-		frontal_wall_locations = [[7, 11], [11, 11], [16, 11], [20, 11]]
+		frontal_wall_locations = [[0, 13], [1, 13], [26, 13], [27, 13]]
 		game_state.attempt_spawn(WALL, frontal_wall_locations)
 		
-		self.build_permanent_defense(game_state)
+		corner_turret_locations = [[4, 12], [23, 12]]
+		game_state.attempt_spawn(TURRET, corner_turret_locations)
 
 		interceptor_deploy_locations = [[5, 8], [22, 8]]
 		game_state.attempt_spawn(INTERCEPTOR, interceptor_deploy_locations)
 
-		additional_wall_locations = [[5, 11], [6, 11], [21, 11], [22, 11]]
+		additional_wall_locations = [[2, 13], [3, 13], [4, 13], [23, 13], [24, 13], 
+			[25, 13], [5, 12], [8, 12], [12, 12], [15, 12], [19, 12], [22, 12]]
 		game_state.attempt_spawn(WALL, additional_wall_locations)
 
-		# Core defenses for all the orientations
-		frontal_turret_locations = [[11, 10], [16, 10], [3, 12], [24, 12]]
-		game_state.attempt_upgrade(frontal_turret_locations)
+		additional_turret_locations = [[8, 11], [12, 11], [15, 11], [19, 11]]
+		game_state.attempt_spawn(TURRET, additional_turret_locations)
+
 
 
 
@@ -110,7 +114,7 @@ class AlgoStrategy(gamelib.AlgoCore):
 
 		attack_threshold = 14
 
-		# build the main game defenses
+		# TODO: FIX THIS LOCATIONS
 		self.build_permanent_defense(game_state)
 
 		if not self.attack_state:
@@ -118,7 +122,10 @@ class AlgoStrategy(gamelib.AlgoCore):
 
 
 		# TODO: select a mid game defense strategy
-		self.mid_game_zelensky(game_state)
+		# self.mid_game_zelensky(game_state)
+
+		# TODO: 
+		self.mid_game_turtly(game_state)
 
 
 		# if not self.attack_state and game_state.get_resource(MP) > attack_threshold:
@@ -128,7 +135,6 @@ class AlgoStrategy(gamelib.AlgoCore):
 		# elif self.attack_state:
 		# 	# kamikaze
 		# 	self.attack_state = 0
-
 
 
 
@@ -180,31 +186,74 @@ class AlgoStrategy(gamelib.AlgoCore):
 
 	def mid_game_turtly(self, game_state):
 		# Spawn Priority:
+		# TODO: place_mid_defense -> add in more turrets in corner 
+		temp_wall_locations = [[ 0, 13],[ 1, 13],[ 26, 13],[ 27, 13],[ 1, 12],[ 26, 12]]
+		game_state.attempt_spawn(WALL, temp_wall_locations)
+
+		yellow_walls_locations = [[5, 13], [22, 13], [5, 12], [22, 12], [5, 11], [6, 11], [21, 11], [22, 11]]
+		game_state.attempt_spawn(WALL, yellow_walls_locations)
+
+		yellow_turrets_locations = [[7, 10], [11, 10], [16, 10], [20, 10]]
+		game_state.attempt_spawn(TURRET, yellow_turrets_locations)
+
+		# right now only one layer of pink
+		pink_wall_locations = [[7, 11], [8, 11], [9, 11], [10, 11], [11, 11], 
+					[12, 11], [13, 11], [14, 11], [15, 11], [16, 11], [17, 11], 
+					[18, 11], [19, 11], [20, 11], [6, 10], [8, 10], [9, 10], [10, 10], 
+					[12, 10], [13, 10], [14, 10], [15, 10], [17, 10], [18, 10], [19, 10], [21, 10]]
+		game_state.attempt_spawn(WALL, pink_wall_locations)
+
+		perm_turret_locations = [[ 3, 12],[ 4, 12],[ 23, 12],[ 24, 12]]
+		game_state.attempt_upgrade(perm_turret_locations)
+
+		game_state.attempt_upgrade(yellow_turrets_locations)
+
+		yellow_support_locations = [[13, 4], [14, 4]]
+		game_state.attempt_spawn(SUPPORT, yellow_support_locations)
+
+		perm_wall_locations = [[ 2, 13],[ 3, 13],[ 4, 13],[ 23, 13],[ 24, 13],[ 25, 13]]
+		game_state.attempt_upgrade(temp_wall_locations)
+		game_state.attempt_upgrade(perm_wall_locations)
+		
+		game_state.attempt_upgrade(yellow_walls_locations)
+		game_state.attempt_upgrade(yellow_support_locations)
+
+		yellow_extra_support_locations = [[12, 5], [13, 5], [14, 5], [15, 5]]
+		game_state.attempt_spawn(SUPPORT, yellow_extra_support_locations)
+
+		game_state.attempt_upgrade(pink_wall_locations)
+		game_state.attempt_upgrade(yellow_extra_support_locations)
+
 		pass
 
 
+
+	def mid_game_prep(self, game_state): 
+		pass
 
 
 	def mid_game_kamikazy(self, game_state):
+		# TODO: add in more supports in the line 
 		pass
 
 
 	
 	
-
+	# TODO: FIX THIS LOCATIONS
 	def build_permanent_defense(self, game_state, upgrade = False):
 		# Core defenses for all the orientations
-		permanent_wall_locations = [[0, 13], [1, 13], [2, 13], [3, 13], [24, 13], [25, 13], 
-			[26, 13], [27, 13], [4, 12], [23, 12]]
-		game_state.attempt_spawn(WALL, permanent_wall_locations)
+		perm_turret_locations = [[ 3, 12],[ 4, 12],[ 23, 12],[ 24, 12]]
 
-		# Core defenses for all the orientations
-		permanent_turret_locations = [[3, 12], [24, 12], [11, 10], [16, 10], [7, 10], [20, 10]]
-		game_state.attempt_spawn(TURRET, permanent_turret_locations)
+		# attempt_spawn will try to spawn units if we have resources, and will check if a blocking unit is already there
+		game_state.attempt_spawn(TURRET, perm_turret_locations)
+		
+		# Place walls in the corners to prevent attacks
+		perm_wall_locations = [[ 2, 13],[ 3, 13],[ 4, 13],[ 23, 13],[ 24, 13],[ 25, 13]]
+		game_state.attempt_spawn(WALL, perm_wall_locations)
 
 		if upgrade:
-			game_state.attempt_upgrade(permanent_turret_locations)
-			game_state.attempt_upgrade(permanent_wall_locations)
+			game_state.attempt_upgrade(perm_turret_locations)
+			game_state.attempt_upgrade(perm_wall_locations)
 			
 
 
@@ -223,7 +272,11 @@ class AlgoStrategy(gamelib.AlgoCore):
 
 
 	def clear_early_game(self, game_state):
-		points_to_remove = [[5, 11], [6, 11], [7, 11], [11, 11], [16, 11], [20, 11], [21, 11], [22, 11]]
+		points_to_remove = [[5, 12], [6, 12], [7, 12], [8, 12], [9, 12], [10, 12], 
+			[11, 12], [12, 12], [13, 12], [14, 12], [15, 12], [16, 12], [17, 12], 
+			[18, 12], [19, 12], [20, 12], [21, 12], [22, 12], [5, 11], [6, 11], 
+			[7, 11], [8, 11], [9, 11], [10, 11], [11, 11], [12, 11], [13, 11], [14, 11], 
+			[15, 11], [16, 11], [17, 11], [18, 11], [19, 11], [20, 11], [21, 11], [22, 11]]
 		game_state.attempt_remove(points_to_remove)
 
 
