@@ -87,18 +87,21 @@ class AlgoStrategy(gamelib.AlgoCore):
 
 
 	def early_game_strategy(self, game_state):
+
+		frontal_wall_locations = [[7, 11], [11, 11], [16, 11], [20, 11]]
+		game_state.attempt_spawn(WALL, frontal_wall_locations)
 		
 		self.build_permanent_defense(game_state)
 
-		deploy_locations = [[5, 8], [22, 8]]
-		game_state.attempt_spawn(INTERCEPTOR, deploy_locations)
+		interceptor_deploy_locations = [[5, 8], [22, 8]]
+		game_state.attempt_spawn(INTERCEPTOR, interceptor_deploy_locations)
 
 		additional_wall_locations = [[5, 11], [6, 11], [21, 11], [22, 11]]
 		game_state.attempt_spawn(WALL, additional_wall_locations)
 
 		# Core defenses for all the orientations
-		opening_turret_locations = [[3, 12], [24, 12], [11, 10], [16, 10], [7, 10], [20, 10]]
-		game_state.attempt_upgrade(opening_turret_locations)
+		frontal_turret_locations = [[11, 10], [16, 10], [3, 12], [24, 12]]
+		game_state.attempt_upgrade(frontal_turret_locations)
 
 
 
@@ -191,17 +194,17 @@ class AlgoStrategy(gamelib.AlgoCore):
 
 	def build_permanent_defense(self, game_state, upgrade = False):
 		# Core defenses for all the orientations
-		opening_wall_locations = [[0, 13], [1, 13], [2, 13], [3, 13], [24, 13], [25, 13], 
-			[26, 13], [27, 13], [4, 12], [23, 12], [7, 11], [11, 11], [16, 11], [20, 11]]
-		game_state.attempt_spawn(WALL, opening_wall_locations)
+		permanent_wall_locations = [[0, 13], [1, 13], [2, 13], [3, 13], [24, 13], [25, 13], 
+			[26, 13], [27, 13], [4, 12], [23, 12]]
+		game_state.attempt_spawn(WALL, permanent_wall_locations)
 
 		# Core defenses for all the orientations
-		opening_turret_locations = [[3, 12], [24, 12], [11, 10], [16, 10], [7, 10], [20, 10]]
-		game_state.attempt_spawn(TURRET, opening_turret_locations)
+		permanent_turret_locations = [[3, 12], [24, 12], [11, 10], [16, 10], [7, 10], [20, 10]]
+		game_state.attempt_spawn(TURRET, permanent_turret_locations)
 
 		if upgrade:
-			game_state.attempt_upgrade(opening_turret_locations)
-			game_state.attempt_upgrade(opening_wall_locations)
+			game_state.attempt_upgrade(permanent_turret_locations)
+			game_state.attempt_upgrade(permanent_wall_locations)
 			
 
 
@@ -219,7 +222,7 @@ class AlgoStrategy(gamelib.AlgoCore):
 
 
 
-	def clear_early_game(game_state):
+	def clear_early_game(self, game_state):
 		points_to_remove = [[5, 11], [6, 11], [7, 11], [11, 11], [16, 11], [20, 11], [21, 11], [22, 11]]
 		game_state.attempt_remove(points_to_remove)
 
