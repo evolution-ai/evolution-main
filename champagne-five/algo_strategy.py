@@ -122,7 +122,8 @@ class AlgoStrategy(gamelib.AlgoCore):
 	def mid_game_strategy(self, game_state):
 
 		attack_MP_threshold = 13 + (game_state.turn_number // 10)
-		attack_SP_threshold = 5
+		attack_SP_threshold = 10
+		PICKUP_AMOUNT = self.get_pickup_refund(game_state)
 
 		# TODO: FIX THIS LOCATIONS
 		self.build_permanent_defense(game_state)
@@ -262,7 +263,7 @@ class AlgoStrategy(gamelib.AlgoCore):
 
 		# spawn wall between turrets behind main line 
 		game_state.attempt_spawn(WALL, yellow_wall_locations)
-		
+	
 		game_state.attempt_spawn(SUPPORT, base_support_locations)
 				
 		if game_state.get_resource(SP) > 5:
@@ -275,12 +276,15 @@ class AlgoStrategy(gamelib.AlgoCore):
 		# spawn interceptors if gap in wall
 		# check spawn points
 		
+		#TODO: PUT THE INTERCEPTORS AT BEST LOCATAION
 		possible_end = game_state.find_path_to_edge([15,1])[-1]
 		if possible_end in game_state.game_map.get_edge_locations(game_state.game_map.TOP_LEFT) or possible_end in game_state.game_map.get_edge_locations(game_state.game_map.TOP_RIGHT):
-			game_state.attempt_spawn(INTERCEPTOR, [[15,1], [12,1]])
+			game_state.attempt_spawn(INTERCEPTOR, [[4,9], [23,9]])
 		# if spawn points lead to path that is on edge, there is gap
 		# else no gap
 		
+
+
 	def get_pickup_refund(self, game_state):
 		yellow_wall_locations = [[6, 10], [7, 10], [9, 10], [10, 10], [11, 10], 
 				[13, 10], [14, 10], [16, 10], [17, 10], [18, 10], [20, 10], [21, 10]]
@@ -294,6 +298,7 @@ class AlgoStrategy(gamelib.AlgoCore):
 		
 		return refund
 
+
 	def check_support_spawned(self, game_state):
 		base_support_locations = [[13, 3], [14, 3]]
 
@@ -303,6 +308,7 @@ class AlgoStrategy(gamelib.AlgoCore):
 				return True
 			else:
 				return False
+
 
 	def check_kamikaze(self, game_state):
 		wall_locations = [[2, 13], [3, 12], [4, 11], [25, 13], [24, 12], [23, 11]]
@@ -314,8 +320,8 @@ class AlgoStrategy(gamelib.AlgoCore):
 		
 		return True
 
+
 	def mid_game_preppy(self, game_state): 
-		
 		
 		self.determine_kamikaze_side(game_state)
 
