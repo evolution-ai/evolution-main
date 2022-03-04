@@ -36,7 +36,7 @@ class AlgoStrategy(gamelib.AlgoCore):
 		"""
 		gamelib.debug_write('Configuring your custom algo strategy...')
 		self.config = config
-		global WALL, SUPPORT, TURRET, SCOUT, DEMOLISHER, INTERCEPTOR, MP, SP
+		global WALL, SUPPORT, TURRET, SCOUT, DEMOLISHER, INTERCEPTOR, MP, SP, DEFEND, LEFT_KAMIKAZE, RIGHT_KAMIKAZE
 		WALL = config["unitInformation"][0]["shorthand"]
 		SUPPORT = config["unitInformation"][1]["shorthand"]
 		TURRET = config["unitInformation"][2]["shorthand"]
@@ -45,14 +45,23 @@ class AlgoStrategy(gamelib.AlgoCore):
 		INTERCEPTOR = config["unitInformation"][5]["shorthand"]
 		MP = 1
 		SP = 0
+		
+		
+		# MACROS FOR ATTACK STATE
+		DEFEND = 0
+		LEFT_KAMIKAZE = 1
+		RIGHT_KAMIKAZE = 2
+
+
 		# This is a good place to do initial setup
 		self.scored_on_locations = []
 
 		# 0 -> don't attack
 		# 1 -> ATTACKKKKKK MFFFFFFFF DIEEEEEEEE :)
-		self.attack_state = 0
+		self.attack_state = DEFEND
 		
-		self.mid_phase = 3
+		self.opening_phase = 3
+		self.mid_phase = 6
 		self.late_phase = 0
 
 
@@ -69,12 +78,15 @@ class AlgoStrategy(gamelib.AlgoCore):
 		gamelib.debug_write('Performing turn {} of your custom algo strategy'.format(game_state.turn_number))
 		game_state.suppress_warnings(True)  #Comment or remove this line to enable warnings.
 		
-		if game_state.turn_number < self.mid_phase:
+		if game_state.turn_number < self.opening_phase:
 			self.early_game_strategy(game_state)
 
-		elif game_state.turn_number == self.mid_phase:
+		elif game_state.turn_number == self.opening_phase:
 			self.early_game_strategy(game_state)
 			self.clear_early_game(game_state)
+
+		elif game_state.turn_number < self.mid_phase:
+			self.mid_game_transition(game_state)
 
 		else:
 			self.mid_game_strategy(game_state)
@@ -116,24 +128,20 @@ class AlgoStrategy(gamelib.AlgoCore):
 		# TODO: FIX THIS LOCATIONS
 		self.build_permanent_defense(game_state)
 
-		if not self.attack_state:
+		if self.attack_state == DEFEND:
 			self.build_temporary_defense(game_state)
-
-
-		# TODO: select a mid game defense strategy
-		# self.mid_game_zelensky(game_state)
-
+		
+		
 		# TODO: 
 		self.mid_game_turtly(game_state)
 
+		if self.attack_state == DEFEND and game_state.get_resource(MP) > attack_threshold:
+			# prepare
+			self.mid_game_preppy(game_state)
 
-		# if not self.attack_state and game_state.get_resource(MP) > attack_threshold:
-		# 	# prepare
-		# 	self.attack_state = 1
-
-		# elif self.attack_state:
-		# 	# kamikaze
-		# 	self.attack_state = 0
+		elif self.attack_state:
+			# kamikaze
+			self.mid_game_kamikazy(game_state)
 
 
 
@@ -179,22 +187,15 @@ class AlgoStrategy(gamelib.AlgoCore):
 
 
 
-
-
-
-	def mid_game_turtly(self, game_state):
+	def mid_game_transition(self, game_state):
 		# Spawn Priority:
 		# TODO: place_mid_defense -> add in more turrets in corner 	
 		# 8 upgrade outside pinks 
 		pink_turret_locations = [[12, 10], [15, 10], [8, 10], [19, 10]]
 		pink_wall_locations = [[8, 11], [12, 11], [15, 11], [19, 11], [9, 10], [10, 10], [11, 10], [16, 10], [17, 10], [18, 10]]
-		blue_turret_locations = [[3, 12], [4, 12], [23, 12], [24, 12]]
-		blue_wall_locations = [[0, 13], [1, 13], [2, 13], [3, 13], [4, 13], [23, 13], [24, 13], [25, 13], [26, 13], [27, 13], [5, 12], [22, 12]]
+
 		teal_turret_locations = [[5, 11], [22, 11]]
 		teal_wall_locations = [[6, 11], [7, 11], [20, 11], [21, 11]]
-		yellow_turret_locations = [[6, 10], [7, 10], [20, 10], [21, 10]]
-		orange_turret_locations = [[4, 11], [23, 11], [5, 10], [22, 10], [12, 9], [15, 9]]
-		orange_wall_locations = [[1, 12], [2, 12], [25, 12], [26, 12], [9, 11], [10, 11], [11, 11], [16, 11], [17, 11], [18, 11]]
 		
 		# 24 points in pink 
 		game_state.attempt_spawn(WALL, pink_wall_locations)
@@ -202,36 +203,59 @@ class AlgoStrategy(gamelib.AlgoCore):
 		# 4 turrets to put in green 
 		game_state.attempt_spawn(WALL, teal_wall_locations)
 		game_state.attempt_spawn(TURRET, teal_turret_locations)
-		# 8 to upgrade turrets starting from the middle
-		game_state.attempt_upgrade(pink_turret_locations)
-		# add in more turrets
-		game_state.attempt_spawn(TURRET, yellow_turret_locations)
 
 		# upgrades corner walls/ turrets 
 		self.build_permanent_defense(game_state, True)
+		self.build_temporary_defense(game_state, True)
 
+		game_state.attempt_spawn(INTERCEPTOR, [15,1])
+		
+
+
+
+
+	def mid_game_turtly(self, game_state):
+		# Spawn Priority:
+		# TODO: place_mid_defense -> add in more turrets in corner 	
+		# 8 upgrade outside pinks 
+		pink_wall_locations = [[6, 11], [7, 11], [8, 11], [9, 11], [10, 11], [11, 11], [12, 11], [13, 11], [14, 11], [15, 11], [16, 11], [17, 11], [18, 11], [19, 11], [20, 11], [21, 11]]
+		teal_turret_locations = [[8, 10], [12, 10], [15, 10], [19, 10]]
+		yellow_turret_locations = [[5, 11], [22, 11]]
+		yellow_wall_locations = [[6, 10], [7, 10], [9, 10], [10, 10], [11, 10], [13, 10], [14, 10], [16, 10], [17, 10], [18, 10], [20, 10], [21, 10]]
+		orange_wall_locations = [[1, 12], [26, 12]]
+		
+		# 24 points in pink 
+		game_state.attempt_spawn(WALL, pink_wall_locations)
+		# 4 turrets to put in green 
+		game_state.attempt_spawn(TURRET, teal_turret_locations)
+
+		# upgrades corner walls/ turrets 
+		self.build_permanent_defense(game_state, True)
+		self.build_temporary_defense(game_state, True)
+		
+
+		game_state.attempt_spawn(WALL, yellow_wall_locations)
+		
+		# 8 to upgrade turrets starting from the middle
+
+		# add in more turrets
+		game_state.attempt_spawn(TURRET, yellow_turret_locations)
+		
 		game_state.attempt_upgrade(pink_wall_locations)
 		game_state.attempt_upgrade(teal_turret_locations)
-		game_state.attempt_upgrade(teal_wall_locations)
 
-		game_state.attempt_spawn(TURRET, orange_turret_locations)
 		game_state.attempt_spawn(TURRET, orange_wall_locations)
 
-		game_state.attempt_upgrade(yellow_turret_locations)
-		game_state.attempt_upgrade(orange_turret_locations)
-		game_state.attempt_upgrade(orange_wall_locations)
-
-
-		game_state.attempt_spawn(INTERCEPTOR, [6,20])
-		pass
 
 
 
 	def mid_game_preppy(self, game_state): 
 		# prepare
+		yellow_wall_locations = [[6, 10], [7, 10], [9, 10], [10, 10], [11, 10], 
+			[13, 10], [14, 10], [16, 10], [17, 10], [18, 10], [20, 10], [21, 10]]
 		left_corner_coords = [[0, 13], [1, 13], [1, 12], [1, 15], [0, 14], [1, 14]]
 		right_corner_coords = [[26, 13], [27, 13], [26, 12], [26, 15], [26, 14], [27, 14]]
-		
+
 		left_damage = 0
 		right_damage = 0
 
@@ -245,25 +269,49 @@ class AlgoStrategy(gamelib.AlgoCore):
 		
 
 		# TODO: PICK THE BETTER SIDE
-		temp_left_wall_locations = [[ 0, 13],[ 1, 13],[ 2, 13]]
-		temp_right_wall_locations = [[ 26, 13],[ 27, 13],[ 25, 13]]
+		temp_left_wall_locations = [[ 0, 13],[ 1, 13],[ 1, 12]]
+		temp_right_wall_locations = [[ 26, 13],[ 27, 13],[ 26, 12]]
 
 		if left_damage < right_damage:
 			game_state.attempt_remove(temp_left_wall_locations)
+			self.attack_state = LEFT_KAMIKAZE
 		else:
 			game_state.attempt_remove(temp_right_wall_locations)
+			self.attack_state = RIGHT_KAMIKAZE
 
 		if game_state.get_resource(SP) < 20:
-			pink_walls_layer_two_locations = [[6, 10], [8, 10], [9, 10], [10, 10], [12, 10], [13, 10], [14, 10], [15, 10], [17, 10], [18, 10], [19, 10], [21, 10]]
-			game_state.attempt_remove(pink_walls_layer_two_locations)
+			# pink_walls_layer_two_locations = [[6, 10], [8, 10], [9, 10], [10, 10], [12, 10], [13, 10], [14, 10], [15, 10], [17, 10], [18, 10], [19, 10], [21, 10]]
+			game_state.attempt_remove(yellow_wall_locations)
 
-		self.attack_state = 1
+		
+
+
 
 
 	def mid_game_kamikazy(self, game_state):
-		# TODO: add in more supports in the line 
+		# TODO: add in more supports in the line
 
-		pass
+		req_points = 10
+
+		interior_channel_wall_left = [[15, 3], [13, 2], [14, 2], [16, 2]]
+		game_state.attempt_spawn(WALL, interior_channel_wall_left)
+
+		attack_channel_wall_left = [[5, 10], [6, 9], [7, 8], [8, 7], [9, 6], [10, 5], [11, 4], [12, 3]]
+
+		for location in attack_channel_wall_left:
+			if game_state.get_resource(SP) > req_points + 3:
+				game_state.attempt_spawn(SUPPORT, location)
+			else:
+				game_state.attempt_spawn(WALL, location)
+			req_points -= 1
+
+		game_state.attempt_remove(interior_channel_wall_left)
+		game_state.attempt_remove(attack_channel_wall_left)
+
+		game_state.attempt_spawn(INTERCEPTOR, [14, 0], 9)
+		game_state.attempt_spawn(INTERCEPTOR, [16, 2], 1000)
+
+		self.attack_state = DEFEND
 
 
 	
