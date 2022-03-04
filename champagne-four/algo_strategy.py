@@ -122,7 +122,8 @@ class AlgoStrategy(gamelib.AlgoCore):
 	def mid_game_strategy(self, game_state):
 
 		attack_MP_threshold = 14
-		attack_SP_threshold = 5
+		attack_SP_threshold = 10
+		PICKUP_AMOUNT = self.get_pickup_refund(game_state)
 
 		# TODO: FIX THIS LOCATIONS
 		self.build_permanent_defense(game_state)
@@ -131,8 +132,12 @@ class AlgoStrategy(gamelib.AlgoCore):
 			self.build_temporary_defense(game_state, True)
 			self.mid_game_turtly(game_state)
 
+			SUFFICIENT_MP = game_state.get_resource(MP) > attack_MP_threshold
+			SUFFICIENT_SP = game_state.get_resource(SP) + PICKUP_AMOUNT > attack_SP_threshold
+			SUPPORT_SPAWNED = self.check_support_spawned(game_state)
+			CHECK_KAMIKAZE = self.check_kamikaze(game_state)
 			# TODO: ONLY GO INTO PREPPY IF THERE ARE ENOUGH WALLS TO FUND AN ATTACK
-			if game_state.get_resource(MP) > attack_MP_threshold:
+			if SUFFICIENT_SP and SUFFICIENT_MP and SUPPORT_SPAWNED and CHECK_KAMIKAZE:
 				self.mid_game_preppy(game_state)
 
 		elif self.attack_state == LEFT_KAMIKAZE:
@@ -204,7 +209,7 @@ class AlgoStrategy(gamelib.AlgoCore):
 		self.build_permanent_defense(game_state, True)
 		self.build_temporary_defense(game_state, True)
 
-		game_state.attempt_spawn(INTERCEPTOR, [15,1])
+		game_state.attempt_spawn(INTERCEPTOR, [[15,1], [12,1]])
 		
 
 
@@ -263,15 +268,79 @@ class AlgoStrategy(gamelib.AlgoCore):
 		game_state.attempt_spawn(SUPPORT, extra_support_locations)
 		game_state.attempt_upgrade(base_support_locations)
 		game_state.attempt_upgrade(extra_support_locations)
+
+		# spawn interceptors if gap in wall
+		# check spawn points
 		
+		possible_end = game_state.find_path_to_edge([15,1])[-1]
+		if possible_end in game_state.game_map.get_edge_locations(game_state.game_map.TOP_LEFT) or possible_end in game_state.game_map.get_edge_locations(game_state.game_map.TOP_RIGHT):
+			game_state.attempt_spawn(INTERCEPTOR, [[15,1], [12,1]])
+		# if spawn points lead to path that is on edge, there is gap
+		# else no gap
+		
+	def get_pickup_refund(self, game_state):
+		yellow_wall_locations = [[6, 10], [7, 10], [9, 10], [10, 10], [11, 10], 
+				[13, 10], [14, 10], [16, 10], [17, 10], [18, 10], [20, 10], [21, 10]]
+		
+		refund = 0
+		for location in yellow_wall_locations:
+			struct = game_state.contains_stationary_unit(location)
+			if struct:
+				if struct.unit_type == WALL:
+					refund += (0.97 * game_state.type_cost(struct.unit_type)[SP] * (struct.health / struct.max_health))
+		
+		return refund
 
+	def check_support_spawned(self, game_state):
+		base_support_locations = [[13, 3], [14, 3]]
 
+		for location in base_support_locations:
+			struct = game_state.contains_stationary_unit(location)
+			if struct:
+				return True
+			else:
+				return False
 
+	def check_kamikaze(self, game_state):
+		wall_locations = [[2, 13], [3, 12], [4, 11], [25, 13], [24, 12], [23, 11]]
+
+		for location in wall_locations:
+			struct = game_state.contains_stationary_unit(location)
+			if not struct:
+				return False
+		
+		return True
 
 	def mid_game_preppy(self, game_state): 
+		
+		
+		self.determine_kamikaze_side(game_state)
+
+		# TODO: PICK THE BETTER SIDE
 		# prepare
 		yellow_wall_locations = [[6, 10], [7, 10], [9, 10], [10, 10], [11, 10], 
 			[13, 10], [14, 10], [16, 10], [17, 10], [18, 10], [20, 10], [21, 10]]
+		temp_left_wall_locations = [[ 0, 13],[ 1, 13],[ 1, 12]]
+		temp_right_wall_locations = [[ 26, 13],[ 27, 13],[ 26, 12]]
+
+		if self.attack_state == LEFT_KAMIKAZE:
+			game_state.attempt_remove(temp_left_wall_locations)
+			
+		elif self.attack_state == RIGHT_KAMIKAZE:
+			game_state.attempt_remove(temp_right_wall_locations)
+		else:
+			gamelib.debug_write("Invalid Kamikaze state. Setting to left.")
+			self.attack_state = LEFT_KAMIKAZE
+			game_state.attempt_remove(temp_left_wall_locations)
+			
+		game_state.attempt_remove(yellow_wall_locations)
+		
+		# TODO: still needed?
+		if game_state.get_resource(SP) < 20:
+			# pink_walls_layer_two_locations = [[6, 10], [8, 10], [9, 10], [10, 10], [12, 10], [13, 10], [14, 10], [15, 10], [17, 10], [18, 10], [19, 10], [21, 10]]
+			game_state.attempt_remove(yellow_wall_locations)
+	
+	def determine_kamikaze_side(self, game_state):
 		left_corner_coords = [[0, 13], [1, 13], [1, 12], [1, 15], [0, 14], [1, 14]]
 		right_corner_coords = [[26, 13], [27, 13], [26, 12], [26, 15], [26, 14], [27, 14]]
 
@@ -286,41 +355,31 @@ class AlgoStrategy(gamelib.AlgoCore):
 			# Get number of enemy turrets that can attack each location and multiply by turret damage
 			right_damage += len(game_state.get_attackers(coord, 0)) * gamelib.GameUnit(TURRET, game_state.config).damage_i
 		
-
-		# TODO: PICK THE BETTER SIDE
-		temp_left_wall_locations = [[ 0, 13],[ 1, 13],[ 1, 12]]
-		temp_right_wall_locations = [[ 26, 13],[ 27, 13],[ 26, 12]]
-
-		# if left_damage < right_damage:
-		# 	game_state.attempt_remove(temp_left_wall_locations)
-		# 	self.attack_state = LEFT_KAMIKAZE
-		# else:
-		# 	game_state.attempt_remove(temp_right_wall_locations)
-		# 	self.attack_state = RIGHT_KAMIKAZE
-		game_state.attempt_remove(temp_left_wall_locations)
-		self.attack_state = LEFT_KAMIKAZE
-		game_state.attempt_remove(yellow_wall_locations)
-		
-		if game_state.get_resource(SP) < 20:
-			# pink_walls_layer_two_locations = [[6, 10], [8, 10], [9, 10], [10, 10], [12, 10], [13, 10], [14, 10], [15, 10], [17, 10], [18, 10], [19, 10], [21, 10]]
-			game_state.attempt_remove(yellow_wall_locations)
+		if left_damage < right_damage:
+			self.attack_state = LEFT_KAMIKAZE
+		else:
+			self_attack_state = RIGHT_KAMIKAZE
 
 		
-
 
 
 
 	def mid_game_kamikazy(self, game_state):
 		# TODO: add in more supports in the line
-
+		
 		req_points = 10
 		num_sups = 0
 
-		interior_channel_wall_left = [[15, 3], [13, 2], [14, 1]]
+		interior_channel_wall_left = [[13, 2], [14, 1]]
+		interior_channel_wall_right = [[13, 1], [14, 2]]
+
 		game_state.attempt_spawn(WALL, interior_channel_wall_left)
 
 		attack_channel_wall_left = [[12, 3], [11, 4], [10, 5], [9, 6], [8, 7], [7, 8], [6, 9], [5, 10]]
+		attack_channel_wall_right = [[15, 3], [16, 4], [17, 5], [18, 6], [19, 7], [20, 8], [21, 9], [22, 10]]
 
+		# TODO: add switching based on self.attack_state == LEFT_KAMIKAZE or self.attack_state == RIGHT_KAMIKAZE
+		
 		for location in attack_channel_wall_left:
 			if game_state.get_resource(SP) > req_points + 3:
 				game_state.attempt_spawn(SUPPORT, location)
