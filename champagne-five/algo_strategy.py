@@ -188,6 +188,7 @@ class AlgoStrategy(gamelib.AlgoCore):
 
 
 
+
 	def mid_game_transition(self, game_state):
 		# Spawn Priority:
 		# TODO: place_mid_defense -> add in more turrets in corner 	
@@ -277,12 +278,11 @@ class AlgoStrategy(gamelib.AlgoCore):
 		# check spawn points
 		
 		#TODO: PUT THE INTERCEPTORS AT BEST LOCATAION
-		possible_end = game_state.find_path_to_edge([15,1])[-1]
-		if possible_end in game_state.game_map.get_edge_locations(game_state.game_map.TOP_LEFT) or possible_end in game_state.game_map.get_edge_locations(game_state.game_map.TOP_RIGHT):
-			game_state.attempt_spawn(INTERCEPTOR, [[4,9], [23,9]])
-		# if spawn points lead to path that is on edge, there is gap
-		# else no gap
-		
+		possible_end = game_state.find_path_to_edge([13,0])[-1]
+		if possible_end in game_state.game_map.get_edge_locations(game_state.game_map.TOP_LEFT): 
+			game_state.attempt_spawn(INTERCEPTOR, [[22,8], [23,9]])
+		elif possible_end in game_state.game_map.get_edge_locations(game_state.game_map.TOP_RIGHT):
+			game_state.attempt_spawn(INTERCEPTOR, [[4,9], [5,8]])
 
 
 	def get_pickup_refund(self, game_state):
