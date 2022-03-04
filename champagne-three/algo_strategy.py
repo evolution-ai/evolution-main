@@ -123,23 +123,20 @@ class AlgoStrategy(gamelib.AlgoCore):
 
 	def mid_game_strategy(self, game_state):
 
-		attack_threshold = 14
+		attack_MP_threshold = 14
+		attack_SP_threshold = 5
 
 		# TODO: FIX THIS LOCATIONS
 		self.build_permanent_defense(game_state)
 
-		if self.attack_state == DEFEND:
-			self.build_temporary_defense(game_state)
-		
-		
-		# TODO: 
-		self.mid_game_turtly(game_state)
+		if self.attack_state == DEFEND: 
+			self.build_temporary_defense(game_state, True)
+			self.mid_game_turtly(game_state)
 
-		if self.attack_state == DEFEND and game_state.get_resource(MP) > attack_threshold:
-			# prepare
-			self.mid_game_preppy(game_state)
+			if game_state.get_resource(MP) > attack_MP_threshold and game_state.get_resource(SP) > attack_SP_threshold:
+				self.mid_game_preppy(game_state)
 
-		elif self.attack_state:
+		elif self.attack_state == LEFT_KAMIKAZE:
 			# kamikaze
 			self.mid_game_kamikazy(game_state)
 
@@ -218,11 +215,11 @@ class AlgoStrategy(gamelib.AlgoCore):
 		# Spawn Priority:
 		# TODO: place_mid_defense -> add in more turrets in corner 	
 		# 8 upgrade outside pinks 
-		pink_wall_locations = [[6, 11], [7, 11], [8, 11], [9, 11], [10, 11], [11, 11], [12, 11], [13, 11], [14, 11], [15, 11], [16, 11], [17, 11], [18, 11], [19, 11], [20, 11], [21, 11]]
+		pink_wall_locations = [[5, 12], [6, 11], [7, 11], [8, 11], [9, 11], [10, 11], [11, 11], [12, 11], [13, 11], [14, 11], [15, 11], [16, 11], [17, 11], [18, 11], [19, 11], [20, 11], [21, 11], [22, 12]]
 		teal_turret_locations = [[8, 10], [12, 10], [15, 10], [19, 10]]
 		yellow_turret_locations = [[5, 11], [22, 11], [4, 11], [23, 11]]
 		yellow_wall_locations = [[6, 10], [7, 10], [9, 10], [10, 10], [11, 10], [13, 10], [14, 10], [16, 10], [17, 10], [18, 10], [20, 10], [21, 10]]
-		orange_wall_locations = [[1, 12], [26, 12]]
+		orange_turrent_locations = [[1, 12], [26, 12]]
 		
 		base_support_locations = [[13, 3], [14, 3]]
 		extra_support_locations = [[12, 4], [13, 4], [14, 4], [15, 4]]
@@ -234,21 +231,22 @@ class AlgoStrategy(gamelib.AlgoCore):
 
 		# upgrades corner walls/ turrets 
 		self.build_permanent_defense(game_state, True)
-		self.build_temporary_defense(game_state, True)
 		
-
 		game_state.attempt_spawn(WALL, yellow_wall_locations)
+		game_state.attempt_spawn(SUPPORT, base_support_locations)
 		
 		# 8 to upgrade turrets starting from the middle
 
 		# add in more turrets
 		game_state.attempt_spawn(TURRET, yellow_turret_locations)
 		
-		game_state.attempt_upgrade(pink_wall_locations)
+		if game_state.get_resource(SP) > 5:
+			game_state.attempt_upgrade(pink_wall_locations)
+
 		game_state.attempt_upgrade(teal_turret_locations)
-		game_state.attempt_spawn(SUPPORT, base_support_locations)
 		
-		game_state.attempt_spawn(TURRET, orange_wall_locations)
+		
+		game_state.attempt_spawn(TURRET, orange_turrent_locations)
 
 		game_state.attempt_spawn(SUPPORT, extra_support_locations)
 		game_state.attempt_upgrade(base_support_locations)
@@ -304,8 +302,9 @@ class AlgoStrategy(gamelib.AlgoCore):
 		# TODO: add in more supports in the line
 
 		req_points = 10
+		num_sups = 0
 
-		interior_channel_wall_left = [[15, 3], [13, 2], [14, 2], [16, 3]]
+		interior_channel_wall_left = [[15, 3], [13, 2], [14, 1]]
 		game_state.attempt_spawn(WALL, interior_channel_wall_left)
 
 		attack_channel_wall_left = [[12, 3], [11, 4], [10, 5], [9, 6], [8, 7], [7, 8], [6, 9], [5, 10]]
@@ -313,6 +312,7 @@ class AlgoStrategy(gamelib.AlgoCore):
 		for location in attack_channel_wall_left:
 			if game_state.get_resource(SP) > req_points + 3:
 				game_state.attempt_spawn(SUPPORT, location)
+				num_sups += 1
 			else:
 				game_state.attempt_spawn(WALL, location)
 			req_points -= 1
@@ -321,8 +321,8 @@ class AlgoStrategy(gamelib.AlgoCore):
 		game_state.attempt_remove(attack_channel_wall_left)
 
 		if game_state.turn_number < 50:
-			game_state.attempt_spawn(SCOUT, [14, 0], 9)
-			game_state.attempt_spawn(SCOUT, [16, 2], 1000)
+			game_state.attempt_spawn(SCOUT, [14, 0], 5 + num_sups)
+			game_state.attempt_spawn(SCOUT, [12, 1], 1000)
 		else:
 			game_state.attempt_spawn(DEMOLISHER, [14, 0], 1000)
 
