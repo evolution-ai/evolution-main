@@ -97,7 +97,10 @@ class AlgoStrategy(gamelib.AlgoCore):
 
 		elif game_state.turn_number == self.mid_phase:
 			self.stall_with_interceptors(game_state)
-			points_to_remove = [[5, 12], [6, 12], [7, 12], [8, 12], [9, 12], [10, 12], [11, 12], [12, 12], [13, 12], [14, 12], [15, 12], [16, 12], [17, 12], [18, 12], [19, 12], [20, 12], [21, 12], [22, 12], [5, 11], [6, 11], [7, 11], [8, 11], [9, 11], [10, 11], [11, 11], [12, 11], [13, 11], [14, 11], [15, 11], [16, 11], [17, 11], [18, 11], [19, 11], [20, 11], [21, 11], [22, 11]]
+			points_to_remove = [[5, 12], [6, 12], [7, 12], [8, 12], [9, 12], [10, 12], [11, 12], [12, 12], [13, 12], 
+				[14, 12], [15, 12], [16, 12], [17, 12], [18, 12], [19, 12], [20, 12], [21, 12], [22, 12], [5, 11], 
+				[6, 11], [7, 11], [8, 11], [9, 11], [10, 11], [11, 11], [12, 11], [13, 11], [14, 11], [15, 11], 
+				[16, 11], [17, 11], [18, 11], [19, 11], [20, 11], [21, 11], [22, 11]]
 			game_state.attempt_remove(points_to_remove)
 
 		else:
@@ -149,9 +152,22 @@ class AlgoStrategy(gamelib.AlgoCore):
 					self.attack_state = 1
 				else:
 					# ATTACK MFFFFF DIEEEE XD
-					attack_channel_wall = [[5, 10], [6, 9], [7, 8], [8, 7], [9, 6], [10, 5], [11, 4], [12, 3], [15, 3], [13, 2], [14, 2], [16, 3], [17, 3]]
-					
-					game_state.attempt_spawn(WALL, attack_channel_wall)
+
+					req_points = 10
+
+					interior_channel_wall = [[13, 2], [14, 2], [16, 3], [17, 3]]
+					game_state.attempt_spawn(WALL, interior_channel_wall)
+
+					attack_channel_wall = [[15, 3], [12, 3], [11, 4], [10, 5], [9, 6], [8, 7], [7, 8], [6, 9], [5, 10]]
+
+					for location in attack_channel_wall:
+
+						if game_state.get_resource(SP) > req_points + 3:
+							game_state.attempt_spawn(SUPPORT, location)
+						else:
+							game_state.attempt_spawn(WALL, location)
+						req_points -= 1
+
 					game_state.attempt_remove(attack_channel_wall)
 
 					game_state.attempt_spawn(SCOUT, [14, 0], 9)

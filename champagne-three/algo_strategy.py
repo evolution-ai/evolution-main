@@ -52,7 +52,7 @@ class AlgoStrategy(gamelib.AlgoCore):
 		# 1 -> ATTACKKKKKK MFFFFFFFF DIEEEEEEEE :)
 		self.attack_state = 0
 		
-		self.mid_phase = 4
+		self.mid_phase = 3
 		self.late_phase = 0
 
 
@@ -185,22 +185,66 @@ class AlgoStrategy(gamelib.AlgoCore):
 
 	def mid_game_turtly(self, game_state):
 		# Spawn Priority:
-		# TODO: place_mid_defense -> add in more turrets in corner 
-		# 24 points in pink 
-		
-		# 8 to upgrade turrets in middle 
-		# 4 turrets to put in green 
+		# TODO: place_mid_defense -> add in more turrets in corner 	
 		# 8 upgrade outside pinks 
+		pink_turret_locations = [[12, 10], [15, 10], [8, 10], [19, 10]]
+		pink_wall_locations = [[8, 11], [12, 11], [15, 11], [19, 11], [9, 10], [10, 10], [11, 10], [16, 10], [17, 10], [18, 10]]
+		blue_turret_locations = [[3, 12], [4, 12], [23, 12], [24, 12]]
+		blue_wall_locations = [[0, 13], [1, 13], [2, 13], [3, 13], [4, 13], [23, 13], [24, 13], [25, 13], [26, 13], [27, 13], [5, 12], [22, 12]]
+		teal_turret_locations = [[5, 11], [22, 11]]
+		teal_wall_locations = [[6, 11], [7, 11], [20, 11], [21, 11]]
+		yellow_turret_locations = [[6, 10], [7, 10], [20, 10], [21, 10]]
+		
+		# 24 points in pink 
+		game_state.attempt_spawn(WALL, pink_wall_locations)
+		game_state.attempt_spawn(TURRET, pink_turret_locations)
+		# 8 to upgrade turrets starting from the middle
+		game_state.attempt_upgrade(pink_turret_locations)
+		# 4 turrets to put in green 
+		game_state.attempt_spawn(WALL, teal_wall_locations)
+		game_state.attempt_spawn(TURRET, teal_turret_locations)
+		# add in more turrets
+		game_state.attempt_spawn(TURRET, yellow_turret_locations)
 		pass
 
 
 
-	def mid_game_prep(self, game_state): 
-		pass
+	def mid_game_preppy(self, game_state): 
+		# prepare
+		left_corner_coords = [[0, 13], [1, 13], [1, 12], [1, 15], [0, 14], [1, 14]]
+		right_corner_coords = [[26, 13], [27, 13], [26, 12], [26, 15], [26, 14], [27, 14]]
+		
+		left_damage = 0
+		right_damage = 0
+
+		for coord in left_corner_coords:
+			# Get number of enemy turrets that can attack each location and multiply by turret damage
+			left_damage += len(game_state.get_attackers(coord, 0)) * gamelib.GameUnit(TURRET, game_state.config).damage_i
+		
+		for coord in right_corner_coords:
+			# Get number of enemy turrets that can attack each location and multiply by turret damage
+			right_damage += len(game_state.get_attackers(coord, 0)) * gamelib.GameUnit(TURRET, game_state.config).damage_i
+		
+
+		# TODO: PICK THE BETTER SIDE
+		temp_left_wall_locations = [[ 0, 13],[ 1, 13],[ 2, 13]]
+		temp_right_wall_locations = [[ 26, 13],[ 27, 13],[ 25, 13]]
+
+		if left_damage < right_damage:
+			game_state.attempt_remove(temp_left_wall_locations)
+		else:
+			game_state.attempt_remove(temp_right_wall_locations)
+
+		if game_state.get_resource(SP) < 20:
+			pink_walls_layer_two_locations = [[6, 10], [8, 10], [9, 10], [10, 10], [12, 10], [13, 10], [14, 10], [15, 10], [17, 10], [18, 10], [19, 10], [21, 10]]
+			game_state.attempt_remove(pink_walls_layer_two_locations)
+
+		self.attack_state = 1
 
 
 	def mid_game_kamikazy(self, game_state):
 		# TODO: add in more supports in the line 
+
 		pass
 
 
