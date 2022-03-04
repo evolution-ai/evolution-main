@@ -61,7 +61,7 @@ class AlgoStrategy(gamelib.AlgoCore):
 		self.attack_state = DEFEND
 		
 		self.opening_phase = 3
-		self.mid_phase = 6
+		self.mid_phase = 5
 		self.late_phase = 0
 
 
@@ -79,14 +79,18 @@ class AlgoStrategy(gamelib.AlgoCore):
 		game_state.suppress_warnings(True)  #Comment or remove this line to enable warnings.
 		
 		if game_state.turn_number < self.opening_phase:
-			self.early_game_strategy(game_state)
+			self.opening_game_strategy(game_state)
 
 		elif game_state.turn_number == self.opening_phase:
-			self.early_game_strategy(game_state)
-			self.clear_early_game(game_state)
+			self.opening_game_strategy(game_state)
+			self.clear_opening_game(game_state)
 
 		elif game_state.turn_number < self.mid_phase:
-			self.mid_game_transition(game_state)
+			self.early_game_stratety(game_state)
+
+		elif game_state.turn_number == self.mid_phase:
+			self.early_game_stratety(game_state)
+			self.clear_early_game(game_state)
 			
 		else:
 			self.mid_game_strategy(game_state)
@@ -98,7 +102,7 @@ class AlgoStrategy(gamelib.AlgoCore):
 
 
 
-	def early_game_strategy(self, game_state):
+	def opening_game_strategy(self, game_state):
 
 		opening_wall_locations = [[0, 13], [1, 13], [26, 13], [27, 13], [2, 13], [3, 13], [4, 13], 
 			[23, 13], [24, 13], [25, 13], [5, 12], [8, 12], [12, 12], [15, 12], [19, 12], [22, 12]]
@@ -189,12 +193,13 @@ class AlgoStrategy(gamelib.AlgoCore):
 
 
 
-	def mid_game_transition(self, game_state):
+	def early_game_stratety(self, game_state):
 		# Spawn Priority:
 		# TODO: place_mid_defense -> add in more turrets in corner 	
 		# 8 upgrade outside pinks 
 		pink_turret_locations = [[12, 10], [15, 10], [8, 10], [19, 10]]
-		pink_wall_locations = [[8, 11], [9, 11], [10, 11], [11, 11], [12, 11], [15, 11], [16, 11], [17, 11], [18, 11], [19, 11]]
+		pink_wall_locations = [[8, 11], [12, 11], [15, 11], [19, 11], [9, 10], 
+			[10, 10], [11, 10], [16, 10], [17, 10], [18, 10]]
 
 		teal_turret_locations = [[5, 11], [22, 11]]
 		teal_wall_locations = [[6, 11], [7, 11], [20, 11], [21, 11]]
@@ -491,12 +496,18 @@ class AlgoStrategy(gamelib.AlgoCore):
 
 
 
-	def clear_early_game(self, game_state):
+	def clear_opening_game(self, game_state):
 		points_to_remove = [[6, 12], [7, 12], [8, 12], [9, 12], [10, 12], 
 			[11, 12], [12, 12], [13, 12], [14, 12], [15, 12], [16, 12], [17, 12], 
 			[18, 12], [19, 12], [20, 12], [21, 12], [6, 11], 
 			[7, 11], [8, 11], [9, 11], [10, 11], [11, 11], [12, 11], [13, 11], [14, 11], 
 			[15, 11], [16, 11], [17, 11], [18, 11], [19, 11], [20, 11], [21, 11]]
+		game_state.attempt_remove(points_to_remove)
+
+
+	def clear_early_game(self, game_state):
+		points_to_remove = [[8, 11], [12, 11], [15, 11], [19, 11], [9, 10], 
+			[10, 10], [11, 10], [16, 10], [17, 10], [18, 10]]
 		game_state.attempt_remove(points_to_remove)
 
 
