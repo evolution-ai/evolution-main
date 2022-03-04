@@ -90,8 +90,9 @@ class AlgoStrategy(gamelib.AlgoCore):
 
 	def early_game_strategy(self, game_state):
 
-		frontal_wall_locations = [[0, 13], [1, 13], [26, 13], [27, 13]]
-		game_state.attempt_spawn(WALL, frontal_wall_locations)
+		opening_wall_locations = [[0, 13], [1, 13], [26, 13], [27, 13], [2, 13], [3, 13], [4, 13], 
+			[23, 13], [24, 13], [25, 13], [5, 12], [8, 12], [12, 12], [15, 12], [19, 12], [22, 12]]
+		game_state.attempt_spawn(WALL, opening_wall_locations)
 		
 		corner_turret_locations = [[4, 12], [23, 12]]
 		game_state.attempt_spawn(TURRET, corner_turret_locations)
@@ -99,12 +100,10 @@ class AlgoStrategy(gamelib.AlgoCore):
 		interceptor_deploy_locations = [[5, 8], [22, 8]]
 		game_state.attempt_spawn(INTERCEPTOR, interceptor_deploy_locations)
 
-		additional_wall_locations = [[2, 13], [3, 13], [4, 13], [23, 13], [24, 13], 
-			[25, 13], [5, 12], [8, 12], [12, 12], [15, 12], [19, 12], [22, 12]]
-		game_state.attempt_spawn(WALL, additional_wall_locations)
-
-		additional_turret_locations = [[8, 11], [12, 11], [15, 11], [19, 11]]
+		additional_turret_locations = [[8, 11], [12, 11], [15, 11], [19, 11], [3, 12], [24, 12]]
 		game_state.attempt_spawn(TURRET, additional_turret_locations)
+
+		game_state.attempt_upgrade(corner_turret_locations)
 
 
 
@@ -187,43 +186,11 @@ class AlgoStrategy(gamelib.AlgoCore):
 	def mid_game_turtly(self, game_state):
 		# Spawn Priority:
 		# TODO: place_mid_defense -> add in more turrets in corner 
-		temp_wall_locations = [[ 0, 13],[ 1, 13],[ 26, 13],[ 27, 13],[ 1, 12],[ 26, 12]]
-		game_state.attempt_spawn(WALL, temp_wall_locations)
-
-		yellow_walls_locations = [[5, 13], [22, 13], [5, 12], [22, 12], [5, 11], [6, 11], [21, 11], [22, 11]]
-		game_state.attempt_spawn(WALL, yellow_walls_locations)
-
-		yellow_turrets_locations = [[7, 10], [11, 10], [16, 10], [20, 10]]
-		game_state.attempt_spawn(TURRET, yellow_turrets_locations)
-
-		# right now only one layer of pink
-		pink_wall_locations = [[7, 11], [8, 11], [9, 11], [10, 11], [11, 11], 
-					[12, 11], [13, 11], [14, 11], [15, 11], [16, 11], [17, 11], 
-					[18, 11], [19, 11], [20, 11], [6, 10], [8, 10], [9, 10], [10, 10], 
-					[12, 10], [13, 10], [14, 10], [15, 10], [17, 10], [18, 10], [19, 10], [21, 10]]
-		game_state.attempt_spawn(WALL, pink_wall_locations)
-
-		perm_turret_locations = [[ 3, 12],[ 4, 12],[ 23, 12],[ 24, 12]]
-		game_state.attempt_upgrade(perm_turret_locations)
-
-		game_state.attempt_upgrade(yellow_turrets_locations)
-
-		yellow_support_locations = [[13, 4], [14, 4]]
-		game_state.attempt_spawn(SUPPORT, yellow_support_locations)
-
-		perm_wall_locations = [[ 2, 13],[ 3, 13],[ 4, 13],[ 23, 13],[ 24, 13],[ 25, 13]]
-		game_state.attempt_upgrade(temp_wall_locations)
-		game_state.attempt_upgrade(perm_wall_locations)
+		# 24 points in pink 
 		
-		game_state.attempt_upgrade(yellow_walls_locations)
-		game_state.attempt_upgrade(yellow_support_locations)
-
-		yellow_extra_support_locations = [[12, 5], [13, 5], [14, 5], [15, 5]]
-		game_state.attempt_spawn(SUPPORT, yellow_extra_support_locations)
-
-		game_state.attempt_upgrade(pink_wall_locations)
-		game_state.attempt_upgrade(yellow_extra_support_locations)
-
+		# 8 to upgrade turrets in middle 
+		# 4 turrets to put in green 
+		# 8 upgrade outside pinks 
 		pass
 
 
@@ -272,11 +239,11 @@ class AlgoStrategy(gamelib.AlgoCore):
 
 
 	def clear_early_game(self, game_state):
-		points_to_remove = [[5, 12], [6, 12], [7, 12], [8, 12], [9, 12], [10, 12], 
+		points_to_remove = [[6, 12], [7, 12], [8, 12], [9, 12], [10, 12], 
 			[11, 12], [12, 12], [13, 12], [14, 12], [15, 12], [16, 12], [17, 12], 
-			[18, 12], [19, 12], [20, 12], [21, 12], [22, 12], [5, 11], [6, 11], 
+			[18, 12], [19, 12], [20, 12], [21, 12], [6, 11], 
 			[7, 11], [8, 11], [9, 11], [10, 11], [11, 11], [12, 11], [13, 11], [14, 11], 
-			[15, 11], [16, 11], [17, 11], [18, 11], [19, 11], [20, 11], [21, 11], [22, 11]]
+			[15, 11], [16, 11], [17, 11], [18, 11], [19, 11], [20, 11], [21, 11]]
 		game_state.attempt_remove(points_to_remove)
 
 
