@@ -193,6 +193,8 @@ class AlgoStrategy(gamelib.AlgoCore):
 		teal_turret_locations = [[5, 11], [22, 11]]
 		teal_wall_locations = [[6, 11], [7, 11], [20, 11], [21, 11]]
 		yellow_turret_locations = [[6, 10], [7, 10], [20, 10], [21, 10]]
+		orange_turret_locations = [[4, 11], [23, 11], [5, 10], [22, 10], [12, 9], [15, 9]]
+		orange_wall_locations = [[1, 12], [2, 12], [25, 12], [26, 12], [9, 11], [10, 11], [11, 11], [16, 11], [17, 11], [18, 11]]
 		
 		# 24 points in pink 
 		game_state.attempt_spawn(WALL, pink_wall_locations)
@@ -204,6 +206,23 @@ class AlgoStrategy(gamelib.AlgoCore):
 		game_state.attempt_upgrade(pink_turret_locations)
 		# add in more turrets
 		game_state.attempt_spawn(TURRET, yellow_turret_locations)
+
+		# upgrades corner walls/ turrets 
+		self.build_permanent_defense(game_state, True)
+
+		game_state.attempt_upgrade(pink_wall_locations)
+		game_state.attempt_upgrade(teal_turret_locations)
+		game_state.attempt_upgrade(teal_wall_locations)
+
+		game_state.attempt_spawn(TURRET, orange_turret_locations)
+		game_state.attempt_spawn(TURRET, orange_wall_locations)
+
+		game_state.attempt_upgrade(yellow_turret_locations)
+		game_state.attempt_upgrade(orange_turret_locations)
+		game_state.attempt_upgrade(orange_wall_locations)
+
+
+		game_state.attempt_spawn(INTERCEPTOR, [6,20])
 		pass
 
 

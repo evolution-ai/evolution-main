@@ -170,8 +170,8 @@ class AlgoStrategy(gamelib.AlgoCore):
 
 					game_state.attempt_remove(attack_channel_wall)
 
-					game_state.attempt_spawn(SCOUT, [14, 0], 9)
-					game_state.attempt_spawn(SCOUT, [16, 2], 1000)
+					game_state.attempt_spawn(INTERCEPTOR, [14, 0], 9)
+					game_state.attempt_spawn(INTERCEPTOR, [16, 2], 1000)
 
 					self.attack_state = 0
 
