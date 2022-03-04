@@ -194,7 +194,7 @@ class AlgoStrategy(gamelib.AlgoCore):
 		# TODO: place_mid_defense -> add in more turrets in corner 	
 		# 8 upgrade outside pinks 
 		pink_turret_locations = [[12, 10], [15, 10], [8, 10], [19, 10]]
-		pink_wall_locations = [[8, 11], [12, 11], [15, 11], [19, 11], [9, 10], [10, 10], [11, 10], [16, 10], [17, 10], [18, 10]]
+		pink_wall_locations = [[8, 11], [9, 11], [10, 11], [11, 11], [12, 11], [15, 11], [16, 11], [17, 11], [18, 11], [19, 11]]
 
 		teal_turret_locations = [[5, 11], [22, 11]]
 		teal_wall_locations = [[6, 11], [7, 11], [20, 11], [21, 11]]
@@ -202,6 +202,7 @@ class AlgoStrategy(gamelib.AlgoCore):
 		# 24 points in pink 
 		game_state.attempt_spawn(WALL, pink_wall_locations)
 		game_state.attempt_spawn(TURRET, pink_turret_locations)
+
 		# 4 turrets to put in green 
 		game_state.attempt_spawn(WALL, teal_wall_locations)
 		game_state.attempt_spawn(TURRET, teal_turret_locations)
@@ -210,7 +211,7 @@ class AlgoStrategy(gamelib.AlgoCore):
 		self.build_permanent_defense(game_state, True)
 		self.build_temporary_defense(game_state, True)
 
-		game_state.attempt_spawn(INTERCEPTOR, [[15,1], [12,1]])
+		game_state.attempt_spawn(INTERCEPTOR, [[16,2], [11,2]])
 		
 
 
