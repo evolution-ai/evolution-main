@@ -179,7 +179,6 @@ class AlgoStrategy(gamelib.AlgoCore):
 
 
 
-	
 
 
 
@@ -198,11 +197,11 @@ class AlgoStrategy(gamelib.AlgoCore):
 		# 24 points in pink 
 		game_state.attempt_spawn(WALL, pink_wall_locations)
 		game_state.attempt_spawn(TURRET, pink_turret_locations)
-		# 8 to upgrade turrets starting from the middle
-		game_state.attempt_upgrade(pink_turret_locations)
 		# 4 turrets to put in green 
 		game_state.attempt_spawn(WALL, teal_wall_locations)
 		game_state.attempt_spawn(TURRET, teal_turret_locations)
+		# 8 to upgrade turrets starting from the middle
+		game_state.attempt_upgrade(pink_turret_locations)
 		# add in more turrets
 		game_state.attempt_spawn(TURRET, yellow_turret_locations)
 		pass
@@ -272,10 +271,10 @@ class AlgoStrategy(gamelib.AlgoCore):
 	def build_temporary_defense(self, game_state, upgrade = False):
 		
 		temp_wall_locations = [[0, 13], [1, 13], [2, 13], [25, 13], [26, 13], [27, 13]]
-		temp_turrets_locations = [[1, 12], [2, 12], [25, 12], [26, 12]]
+		# temp_turrets_locations = [[1, 12], [2, 12], [25, 12], [26, 12]]
 		
 		game_state.attempt_spawn(WALL, temp_wall_locations)
-		game_state.attempt_spawn(TURRET, temp_turrets_locations)
+		# game_state.attempt_spawn(TURRET, temp_turrets_locations)
 		
 		if upgrade:
 			game_state.attempt_upgrade(temp_wall_locations)
