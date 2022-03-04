@@ -121,7 +121,7 @@ class AlgoStrategy(gamelib.AlgoCore):
 
 	def mid_game_strategy(self, game_state):
 
-		attack_MP_threshold = 14
+		attack_MP_threshold = 13 + (game_state.turn_number // 10)
 		attack_SP_threshold = 5
 
 		# TODO: FIX THIS LOCATIONS
@@ -241,24 +241,28 @@ class AlgoStrategy(gamelib.AlgoCore):
 		# upgrades corner walls/ turrets 
 		self.build_permanent_defense(game_state, True)
 		
-		# upgrade 2 center turrets
-		game_state.attempt_upgrade(mid_turret_locations)
-
-		# add in more turrets
-		game_state.attempt_spawn(TURRET, yellow_turret_locations)
+		# upgrade peri turrets
+		game_state.attempt_upgrade(peri_turret_locations)
 
 		# add in two more wall units in the main line per side
 		game_state.attempt_spawn(WALL, pink_peri_wall)
 
-		game_state.attempt_upgrade(peri_turret_locations)
-		game_state.attempt_spawn(WALL, yellow_wall_locations)
+		# upgrade 2 center turrets
+		game_state.attempt_upgrade(mid_turret_locations)
 
+		# spawn two turrets on the peripheries
+		game_state.attempt_spawn(TURRET, orange_turrent_locations)
+
+		# add in more turrets
+		game_state.attempt_spawn(TURRET, yellow_turret_locations)
+
+		# spawn wall between turrets behind main line 
+		game_state.attempt_spawn(WALL, yellow_wall_locations)
+		
 		game_state.attempt_spawn(SUPPORT, base_support_locations)
 				
 		if game_state.get_resource(SP) > 5:
 			game_state.attempt_upgrade(pink_wall_locations)
-
-		game_state.attempt_spawn(TURRET, orange_turrent_locations)
 
 		game_state.attempt_spawn(SUPPORT, extra_support_locations)
 		game_state.attempt_upgrade(base_support_locations)
@@ -332,7 +336,7 @@ class AlgoStrategy(gamelib.AlgoCore):
 		game_state.attempt_remove(interior_channel_wall_left)
 		game_state.attempt_remove(attack_channel_wall_left)
 
-		if game_state.turn_number < 50:
+		if game_state.turn_number < 45:
 			game_state.attempt_spawn(SCOUT, [14, 0], 5 + num_sups)
 			game_state.attempt_spawn(SCOUT, [12, 1], 1000)
 		else:
