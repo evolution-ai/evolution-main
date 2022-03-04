@@ -87,11 +87,9 @@ class AlgoStrategy(gamelib.AlgoCore):
 
 		elif game_state.turn_number < self.mid_phase:
 			self.mid_game_transition(game_state)
-
+			
 		else:
 			self.mid_game_strategy(game_state)
-
-		# TODO: GO FOR THE HEAD (ENDGAME)
 
 		# Submit the moves to terminal
 		game_state.submit_turn()
@@ -133,7 +131,8 @@ class AlgoStrategy(gamelib.AlgoCore):
 			self.build_temporary_defense(game_state, True)
 			self.mid_game_turtly(game_state)
 
-			if game_state.get_resource(MP) > attack_MP_threshold and game_state.get_resource(SP) > attack_SP_threshold:
+			# TODO: ONLY GO INTO PREPPY IF THERE ARE ENOUGH WALLS TO FUND AN ATTACK
+			if game_state.get_resource(MP) > attack_MP_threshold:
 				self.mid_game_preppy(game_state)
 
 		elif self.attack_state == LEFT_KAMIKAZE:
@@ -212,11 +211,19 @@ class AlgoStrategy(gamelib.AlgoCore):
 
 
 	def mid_game_turtly(self, game_state):
-		# Spawn Priority:
+
+		## TODO 1.) Upgrade turrets before upgrading walls 
+		## 2.) corner turrets, center turrets, then others for upgrading 
+		## 3.) make sure all turrets have corner walls 
+
 		# TODO: place_mid_defense -> add in more turrets in corner 	
+
 		# 8 upgrade outside pinks 
-		pink_wall_locations = [[5, 12], [6, 11], [7, 11], [8, 11], [9, 11], [10, 11], [11, 11], [12, 11], [13, 11], [14, 11], [15, 11], [16, 11], [17, 11], [18, 11], [19, 11], [20, 11], [21, 11], [22, 12]]
-		teal_turret_locations = [[8, 10], [12, 10], [15, 10], [19, 10]]
+		pink_wall_locations = [[6, 11], [7, 11], [8, 11], [9, 11], [10, 11], [11, 11], [12, 11], [13, 11], [14, 11], [15, 11], [16, 11], [17, 11], [18, 11], [19, 11], [20, 11], [21, 11], [22, 12]]
+		pink_peri_wall = [[6, 11], [20, 11],[7, 11], [21, 11]]
+		pink_center_wall = [[8, 11], [9, 11], [10, 11], [11, 11], [12, 11], [13, 11], [14, 11], [15, 11], [16, 11], [17, 11], [18, 11], [19, 11]]
+		mid_turret_locations = [[8, 10], [12, 10]]
+		peri_turret_locations = [[15, 10], [19, 10]]
 		yellow_turret_locations = [[5, 11], [22, 11], [4, 11], [23, 11]]
 		yellow_wall_locations = [[6, 10], [7, 10], [9, 10], [10, 10], [11, 10], [13, 10], [14, 10], [16, 10], [17, 10], [18, 10], [20, 10], [21, 10]]
 		orange_turrent_locations = [[1, 12], [26, 12]]
@@ -224,28 +231,33 @@ class AlgoStrategy(gamelib.AlgoCore):
 		base_support_locations = [[13, 3], [14, 3]]
 		extra_support_locations = [[12, 4], [13, 4], [14, 4], [15, 4]]
 
-		# 24 points in pink 
-		game_state.attempt_spawn(WALL, pink_wall_locations)
-		# 4 turrets to put in green 
-		game_state.attempt_spawn(TURRET, teal_turret_locations)
+		# spawns turrets in the center line
+		game_state.attempt_spawn(TURRET, mid_turret_locations)
+		game_state.attempt_spawn(TURRET, peri_turret_locations)
 
+		# spawns main wall 
+		game_state.attempt_spawn(WALL, pink_center_wall)
+		
 		# upgrades corner walls/ turrets 
 		self.build_permanent_defense(game_state, True)
 		
-		game_state.attempt_spawn(WALL, yellow_wall_locations)
-		game_state.attempt_spawn(SUPPORT, base_support_locations)
-		
-		# 8 to upgrade turrets starting from the middle
+		# upgrade 2 center turrets
+		game_state.attempt_upgrade(mid_turret_locations)
 
 		# add in more turrets
 		game_state.attempt_spawn(TURRET, yellow_turret_locations)
-		
+
+		# add in two more wall units in the main line per side
+		game_state.attempt_spawn(WALL, pink_peri_wall)
+
+		game_state.attempt_upgrade(peri_turret_locations)
+		game_state.attempt_spawn(WALL, yellow_wall_locations)
+
+		game_state.attempt_spawn(SUPPORT, base_support_locations)
+				
 		if game_state.get_resource(SP) > 5:
 			game_state.attempt_upgrade(pink_wall_locations)
 
-		game_state.attempt_upgrade(teal_turret_locations)
-		
-		
 		game_state.attempt_spawn(TURRET, orange_turrent_locations)
 
 		game_state.attempt_spawn(SUPPORT, extra_support_locations)
