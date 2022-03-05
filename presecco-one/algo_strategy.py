@@ -274,6 +274,12 @@ class AlgoStrategy(gamelib.AlgoCore):
 
 		attack_MP_threshold = 12 + (game_state.turn_number // 14)
 
+		lowest_damage_threshold = 10
+		test_spawn_locations = [[21, 7], [8, 5], [19, 5], [10, 3], [17, 3], [15, 1], [13, 0]]
+		lowest_damage_amount, lowest_damage_spawn_location = self.least_damage_spawn_location(game_state, test_spawn_locations)
+
+		gamelib.debug_write("Lowest possible damage is: {}, from location {}".format(lowest_damage_amount, lowest_damage_spawn_location))
+
 		if game_state.get_resource(MP) > attack_MP_threshold:
 			game_state.attempt_spawn(DEMOLISHER, [18, 4], 1000)
 
@@ -312,7 +318,9 @@ class AlgoStrategy(gamelib.AlgoCore):
 			damages.append(damage)
 		
 		# Now just return the location that takes the least damage
-		return location_options[damages.index(min(damages))]
+		lowest_damage_amount = min(damages)
+		lowest_damage_spawn_location = location_options[damages.index(min(damages))]
+		return lowest_damage_amount, lowest_damage_spawn_location
 	
 
 
