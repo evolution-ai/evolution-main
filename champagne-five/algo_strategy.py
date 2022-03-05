@@ -122,8 +122,8 @@ class AlgoStrategy(gamelib.AlgoCore):
 
 	def mid_game_strategy(self, game_state):
 
-		attack_MP_threshold = 12 + (game_state.turn_number // 10)
-		attack_SP_threshold = 9
+		attack_MP_threshold = 14 + (game_state.turn_number // 10)
+		attack_SP_threshold = 10
 		PICKUP_AMOUNT = self.get_pickup_refund(game_state)
 
 		# TODO: FIX THIS LOCATIONS
