@@ -65,6 +65,8 @@ class AlgoStrategy(gamelib.AlgoCore):
 		self.mid_phase = 6
 		self.late_phase = 0
 
+		self.repair_list = []
+
 
 
 	def on_turn(self, turn_state):
@@ -230,9 +232,8 @@ class AlgoStrategy(gamelib.AlgoCore):
 		# TODO: place_mid_defense -> add in more turrets in corner 	
 
 		# 8 upgrade outside pinks 
-		pink_wall_locations = [[6, 11], [7, 11], [8, 11], [9, 11], [10, 11], [11, 11], [12, 11], [13, 11], [14, 11], [15, 11], [16, 11], [17, 11], [18, 11], [19, 11], [20, 11], [21, 11], [5, 12], [22, 12]]
 		pink_peri_wall = [[6, 11], [20, 11],[7, 11], [21, 11]]
-		pink_center_wall = [[8, 11], [9, 11], [10, 11], [11, 11], [12, 11], [13, 11], [14, 11], [15, 11], [16, 11], [17, 11], [18, 11], [19, 11]]
+		pink_center_wall = [[8, 11], [9, 11], [10, 11], [11, 11], [12, 11], [13, 11], [14, 11], [15, 11], [16, 11], [17, 11], [18, 11], [19, 11], [5, 12], [22, 12]]
 		
 		mid_turret_locations = [[15, 10], [12, 10]]
 		peri_turret_locations = [[8, 10], [19, 10]]
@@ -245,6 +246,10 @@ class AlgoStrategy(gamelib.AlgoCore):
 		base_support_locations = [[13, 3], [14, 3]]
 		extra_support_locations = [[12, 4], [13, 4], [14, 4], [15, 4]]
 
+		# spawns the turrets that were removed for repair 
+		game_state.attempt_spawn(TURRET, self.repair_list)
+		self.repair_list = []
+		
 		# spawns turrets in the center line
 		game_state.attempt_spawn(TURRET, mid_turret_locations)
 		game_state.attempt_spawn(TURRET, peri_turret_locations)
@@ -267,6 +272,7 @@ class AlgoStrategy(gamelib.AlgoCore):
 		game_state.attempt_spawn(TURRET, flank_turret_locations)
 
 		game_state.attempt_upgrade(extra_turret_locations)
+
 		game_state.attempt_upgrade(flank_turret_locations)
 		
 		# upgrade peri turrets
@@ -280,12 +286,14 @@ class AlgoStrategy(gamelib.AlgoCore):
 		game_state.attempt_spawn(SUPPORT, base_support_locations)
 				
 		if game_state.get_resource(SP) > 5:
-			game_state.attempt_upgrade(pink_wall_locations)
+			game_state.attempt_upgrade(pink_center_wall)
+			game_state.attempt_upgrade(pink_peri_wall)
 
 		## REPAIR METHOD: If turrets fall below 50% of max health, then remove and put down again 
 		## what should the priorities be for this/?
 		for turret in turret_locations: 
-			if turret.health < 0.5 * turret.max_health: 
+			if turret.health < 0.3 * turret.max_health: 
+				self.repair_list.append(turret)
 				game_state.attempt_remove(turret)
 			
 	
