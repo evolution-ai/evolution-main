@@ -243,8 +243,8 @@ class AlgoStrategy(gamelib.AlgoCore):
 
 		turret_locations = [[15, 10], [12, 10],[8, 10], [19, 10],[2,12], [24,12], [1, 12], [26, 12],[4,12], [24, 12], [3, 12], [24,12], [5, 11], [22, 11], [4, 11], [23, 11]]
 		yellow_wall_locations = [[6, 10], [7, 10], [9, 10], [10, 10], [11, 10], [13, 10], [14, 10], [16, 10], [17, 10], [18, 10], [20, 10], [21, 10], [5, 10], [22, 10]]
-		base_support_locations = [[13, 3], [14, 3]]
-		extra_support_locations = [[12, 4], [13, 4], [14, 4], [15, 4]]
+		base_support_locations = [[13, 2], [14, 2]]
+		extra_support_locations = [[13, 4], [13, 3], [14, 3], [14, 4]]
 
 		# spawns the turrets that were removed for repair 
 		game_state.attempt_spawn(TURRET, self.repair_list)
@@ -404,7 +404,7 @@ class AlgoStrategy(gamelib.AlgoCore):
 
 
 	def check_support_spawned(self, game_state):
-		base_support_locations = [[13, 3], [14, 3]]
+		base_support_locations = [[13, 2], [14, 2]]
 
 		for location in base_support_locations:
 			struct = game_state.contains_stationary_unit(location)
@@ -486,9 +486,11 @@ class AlgoStrategy(gamelib.AlgoCore):
 		req_points = 10
 		num_sups = 0
 
-		interior_channel_wall_left = [[13, 2], [14, 2], [15, 3], [16, 3]]
-		interior_channel_wall_right = [[13, 1], [14, 2]]
+		back_channel_wall = [[13, 2], [14, 2]]
+		interior_channel_wall_left = [[15, 3], [16, 3]]
+		interior_channel_wall_right = [[11, 3], [12, 3]]
 
+		game_state.attempt_spawn(WALL, back_channel_wall)
 		game_state.attempt_spawn(WALL, interior_channel_wall_left)
 
 		attack_channel_wall_left = [[12, 3], [11, 4], [10, 5], [9, 6], [8, 7], [7, 8], [6, 9], [5, 10], [4, 11]]
@@ -512,6 +514,12 @@ class AlgoStrategy(gamelib.AlgoCore):
 
 		game_state.attempt_remove(interior_channel_wall_left)
 		game_state.attempt_remove(attack_channel_wall_left)
+
+		for location in back_channel_wall: 
+			struct = game_state.contain_stationary_unit(location)
+			if struct.unit_type == WALL: 
+				game_state.attempt_remove(location)
+
 
 
 		if game_state.contains_stationary_unit(left_kamikaze_wall):
@@ -555,6 +563,7 @@ class AlgoStrategy(gamelib.AlgoCore):
 		
 		if upgrade:
 			game_state.attempt_upgrade(temp_wall_locations)
+
 
 
 
