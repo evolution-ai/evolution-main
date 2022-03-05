@@ -492,7 +492,7 @@ class AlgoStrategy(gamelib.AlgoCore):
 
 
 		if game_state.contains_stationary_unit(left_kamikaze_wall):
-			game_state.attempt_spawn(SCOUT, [16, 2], 5 + num_sups)
+			game_state.attempt_spawn(SCOUT, [16, 2], 5 + num_sups // 2)
 			game_state.attempt_spawn(SCOUT, [14, 0], 1000)
 
 		else:
