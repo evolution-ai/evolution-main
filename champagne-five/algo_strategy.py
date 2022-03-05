@@ -61,7 +61,7 @@ class AlgoStrategy(gamelib.AlgoCore):
 		self.attack_state = DEFEND
 		
 		self.opening_phase = 3
-		self.mid_phase = 5
+		self.mid_phase = 6
 		self.late_phase = 0
 
 
@@ -87,10 +87,6 @@ class AlgoStrategy(gamelib.AlgoCore):
 
 		elif game_state.turn_number < self.mid_phase:
 			self.early_game_stratety(game_state)
-
-		elif game_state.turn_number == self.mid_phase:
-			self.early_game_stratety(game_state)
-			self.clear_early_game(game_state)
 			
 		else:
 			self.mid_game_strategy(game_state)
@@ -151,44 +147,44 @@ class AlgoStrategy(gamelib.AlgoCore):
 
 
 
-	def mid_game_zelensky(self, game_state): 
-		# Spawn Priority: 
+	# def mid_game_zelensky(self, game_state): 
+	# 	# Spawn Priority: 
 		
-		# PINK = long wall/turrets
-		pink_wall_locations = [[10, 12], [11, 12], [12, 12], [13, 12], [14, 12], 
-								[15, 12], [16, 12], [17, 12], [18, 12], [19, 12], 
-								[20, 12], [21, 12], [22, 12], [4, 11], [5, 10]]
-		pink_turret_locations = [[6, 10], [8, 10]]
-		game_state.attempt_spawn(WALL, pink_wall_locations)
-		game_state.attempt_spawn(TURRET, pink_turret_locations)
+	# 	# PINK = long wall/turrets
+	# 	pink_wall_locations = [[10, 12], [11, 12], [12, 12], [13, 12], [14, 12], 
+	# 							[15, 12], [16, 12], [17, 12], [18, 12], [19, 12], 
+	# 							[20, 12], [21, 12], [22, 12], [4, 11], [5, 10]]
+	# 	pink_turret_locations = [[6, 10], [8, 10]]
+	# 	game_state.attempt_spawn(WALL, pink_wall_locations)
+	# 	game_state.attempt_spawn(TURRET, pink_turret_locations)
 
-		# YELLOW = extra wall length/ turret / support 
-		yellow_wall_locations = [[7, 12], [8, 12], [9, 12]]
-		yellow_turret_locations = [[9, 10], [10, 10], [12, 10], [13, 10], [18, 10], [22, 10]]
-		yellow_support_locations = [[14, 9], [15, 9], [17, 9], [19, 9]]
+	# 	# YELLOW = extra wall length/ turret / support 
+	# 	yellow_wall_locations = [[7, 12], [8, 12], [9, 12]]
+	# 	yellow_turret_locations = [[9, 10], [10, 10], [12, 10], [13, 10], [18, 10], [22, 10]]
+	# 	yellow_support_locations = [[14, 9], [15, 9], [17, 9], [19, 9]]
 
-		game_state.attempt_spawn(WALL, yellow_wall_locations)
-		self.build_permanent_defense(game_state, upgrade=True)
+	# 	game_state.attempt_spawn(WALL, yellow_wall_locations)
+	# 	self.build_permanent_defense(game_state, upgrade=True)
 
-		game_state.attempt_spawn(TURRET, yellow_turret_locations)
-		game_state.attempt_spawn(SUPPORT, yellow_support_locations)
+	# 	game_state.attempt_spawn(TURRET, yellow_turret_locations)
+	# 	game_state.attempt_spawn(SUPPORT, yellow_support_locations)
 		
-		# ORANGE = extra turret + extra support 
-		orange_turret_locations = [[14, 10], [15, 10], [17, 10], [19, 10]]
-		orange_support_locations = [[23, 11], [18, 9], [18, 8], [19, 8]]
+	# 	# ORANGE = extra turret + extra support 
+	# 	orange_turret_locations = [[14, 10], [15, 10], [17, 10], [19, 10]]
+	# 	orange_support_locations = [[23, 11], [18, 9], [18, 8], [19, 8]]
 
-		game_state.attempt_upgrade(pink_turret_locations)
-		game_state.attempt_upgrade(pink_wall_locations)
+	# 	game_state.attempt_upgrade(pink_turret_locations)
+	# 	game_state.attempt_upgrade(pink_wall_locations)
 
-		game_state.attempt_spawn(TURRET, orange_turret_locations)
-		game_state.attempt_spawn(SUPPORT, orange_support_locations)
+	# 	game_state.attempt_spawn(TURRET, orange_turret_locations)
+	# 	game_state.attempt_spawn(SUPPORT, orange_support_locations)
 
-		game_state.attempt_upgrade(yellow_support_locations)
-		game_state.attempt_upgrade(yellow_wall_locations)
-		game_state.attempt_upgrade(yellow_turret_locations)
+	# 	game_state.attempt_upgrade(yellow_support_locations)
+	# 	game_state.attempt_upgrade(yellow_wall_locations)
+	# 	game_state.attempt_upgrade(yellow_turret_locations)
 
-		game_state.attempt_upgrade(orange_support_locations)
-		game_state.attempt_upgrade(orange_turret_locations)
+	# 	game_state.attempt_upgrade(orange_support_locations)
+	# 	game_state.attempt_upgrade(orange_turret_locations)
 
 
 
@@ -198,8 +194,8 @@ class AlgoStrategy(gamelib.AlgoCore):
 		# TODO: place_mid_defense -> add in more turrets in corner 	
 		# 8 upgrade outside pinks 
 		pink_turret_locations = [[12, 10], [15, 10], [8, 10], [19, 10]]
-		pink_wall_locations = [[8, 11], [12, 11], [15, 11], [19, 11], [9, 10], 
-			[10, 10], [11, 10], [16, 10], [17, 10], [18, 10]]
+		pink_wall_locations = [[8, 11], [12, 11], [15, 11], [19, 11], [9, 11], 
+			[10, 11], [11, 11], [16, 11], [17, 11], [18, 11]]
 
 		teal_turret_locations = [[5, 11], [22, 11]]
 		teal_wall_locations = [[6, 11], [7, 11], [20, 11], [21, 11]]
@@ -232,12 +228,12 @@ class AlgoStrategy(gamelib.AlgoCore):
 
 		# 8 upgrade outside pinks 
 		pink_wall_locations = [[6, 11], [7, 11], [8, 11], [9, 11], [10, 11], [11, 11], [12, 11], [13, 11], [14, 11], [15, 11], [16, 11], [17, 11], [18, 11], [19, 11], [20, 11], [21, 11], [22, 12]]
-		pink_peri_wall = [[6, 11], [20, 11],[7, 11], [21, 11]]
+		pink_peri_wall = [[6, 11], [20, 11],[7, 11], [21, 11], [5, 12], [22, 12]]
 		pink_center_wall = [[8, 11], [9, 11], [10, 11], [11, 11], [12, 11], [13, 11], [14, 11], [15, 11], [16, 11], [17, 11], [18, 11], [19, 11]]
 		mid_turret_locations = [[8, 10], [12, 10]]
 		peri_turret_locations = [[15, 10], [19, 10]]
 		yellow_turret_locations = [[5, 11], [22, 11], [4, 11], [23, 11]]
-		yellow_wall_locations = [[6, 10], [7, 10], [9, 10], [10, 10], [11, 10], [13, 10], [14, 10], [16, 10], [17, 10], [18, 10], [20, 10], [21, 10]]
+		yellow_wall_locations = [[6, 10], [7, 10], [9, 10], [10, 10], [11, 10], [13, 10], [14, 10], [16, 10], [17, 10], [18, 10], [20, 10], [21, 10], [5, 10], [22, 10]]
 		orange_turrent_locations = [[1, 12], [26, 12]]
 		
 		base_support_locations = [[13, 3], [14, 3]]
@@ -284,39 +280,76 @@ class AlgoStrategy(gamelib.AlgoCore):
 		# spawn interceptors if gap in wall
 		# check spawn points
 
-		centre_edge_list = [[0, 13], [1, 13], [2, 13], [3, 13], [4, 13], [5, 13], [6, 13], 
-			[7, 13], [8, 13], [9, 13], [10, 13], [11, 13], [12, 13], [13, 13], [14, 13], 
-			[15, 13], [16, 13], [17, 13], [18, 13], [19, 13], [20, 13], [21, 13], [22, 13], 
-			[23, 13], [24, 13], [25, 13], [26, 13], [27, 13]]
+		left_corner_structs = [[0, 13], [1, 13], [2, 13], [3, 13], [3, 12]]
+		left_flank_structs = [[4, 13], [4, 12], [5, 12], [5, 11], [6, 11]]
+		left_main_structs = [[7, 11], [8, 11], [9, 11], [10, 11], [11, 11], [8, 10]]
+		central_main_structs = [[12, 11], [13, 11], [14, 11], [15, 11], [12, 10], [15, 10]]
+		right_main_structs = [[16, 11], [17, 11], [18, 11], [19, 11], [20, 11], [19, 10]]
+		right_flank_structs = [[23, 13], [22, 12], [23, 12], [21, 11], [22, 11]]
+		right_corner_structs = [[24, 13], [25, 13], [26, 13], [27, 13], [24, 12]]
 
-		possible_spawn_locs = [[3, 10], [24, 10], [6, 7], [21, 7], [9, 4], [18, 4]]
+		left_corner_count = 0
+		left_flank_count = 0
+		left_main_count = 0
+		central_main_count = 0
+		right_main_count = 0
+		right_flank_count = 0
+		right_corner_count = 0
 
-		min_path_length = 1000
-		min_path_spawn_location = []
+		for location in left_corner_structs:
+			if game_state.contains_stationary_unit(location):
+				left_corner_count += 1
 
-		spawn_locs_to_dists = dict()
+		for location in left_flank_structs:
+			if game_state.contains_stationary_unit(location):
+				left_flank_count += 1
 
-		for spawn_loc in possible_spawn_locs:
+		for location in left_main_structs:
+			if game_state.contains_stationary_unit(location):
+				left_main_count += 1
 
-			pathing = game_state.find_path_to_edge(spawn_loc)
-			possible_end = pathing[-1]
+		for location in central_main_structs:
+			if game_state.contains_stationary_unit(location):
+				central_main_count += 1
 
-			if possible_end in centre_edge_list:
-				spawn_locs_to_dists[(spawn_loc[0], spawn_loc[1])] = len(pathing)
+		for location in right_main_structs:
+			if game_state.contains_stationary_unit(location):
+				right_main_count += 1
 
-				if len(pathing) < min_path_length:
-					min_path_length = len(pathing)
-					min_path_spawn_location = spawn_loc
+		for location in right_flank_structs:
+			if game_state.contains_stationary_unit(location):
+				right_flank_count += 1
+
+		for location in right_corner_structs:
+			if game_state.contains_stationary_unit(location):
+				right_corner_count += 1
 
 
-		if spawn_locs_to_dists:
-			game_state.attempt_spawn(INTERCEPTOR, min_path_spawn_location, 2)
+		if left_corner_count <= 3:
+			game_state.attempt_spawn(INTERCEPTOR, [2,11])
 
+		if left_flank_count <= 4 or ((left_corner_count + left_flank_count) <= 8):
+			game_state.attempt_spawn(INTERCEPTOR, [4,9])
+
+		if left_main_count <= 4:
+			game_state.attempt_spawn(INTERCEPTOR, [7,6])
+
+		if central_main_count <= 5:
+			game_state.attempt_spawn(INTERCEPTOR, [[7,6], [20, 6]])
+
+		if right_main_count <= 4:
+			game_state.attempt_spawn(INTERCEPTOR, [20,6])
+
+		if right_flank_count <= 4 or ((right_corner_count + right_flank_count) <= 7):
+			game_state.attempt_spawn(INTERCEPTOR, [23,9])
+
+		if right_corner_count <= 3:
+			game_state.attempt_spawn(INTERCEPTOR, [25,11])
 
 			
 		
 		# #TODO: PUT THE INTERCEPTORS AT BEST LOCATAION
-		# possible_end = game_state.find_path_to_edge([13,0])
+		# possible_end = game_state.find_path_to_edge([13,0])[-1]
 
 		# if possible_end in game_state.game_map.get_edge_locations(game_state.game_map.TOP_LEFT): 
 		# 	game_state.attempt_spawn(INTERCEPTOR, [[22,8], [23,9]])
