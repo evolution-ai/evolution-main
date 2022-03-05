@@ -251,7 +251,7 @@ class AlgoStrategy(gamelib.AlgoCore):
 				game_state.attempt_remove(location)
 
 
-
+		# TODO: Wall repairs
 		all_wall_locations = (backbone_wall_locations + frontal_wall_1_locations 
 			+ frontal_wall_2_locations + frontal_wall_3_locations
 			+ frontal_wall_4_locations)
@@ -264,9 +264,6 @@ class AlgoStrategy(gamelib.AlgoCore):
 
 
 
-
-
-		
 
 
 
@@ -358,6 +355,25 @@ class AlgoStrategy(gamelib.AlgoCore):
 
 
 
+	def get_all_enemy_structures(self, game_state):
+		structure_set = set()
+
+		for x in range(0, 14):
+			for y in range(14, 14 + x):
+				unit = game_state.contains_stationary_unit([x,y])
+				if unit:
+					structure_set.add((x, y))
+
+		for x in range(14, 28):
+			for y in range(14, 41 - x):
+				unit = game_state.contains_stationary_unit([x,y])
+				if unit:
+					structure_set.add((x, y))
+
+
+
+
+
 
 	def filter_blocked_locations(self, locations, game_state):
 		filtered = []
@@ -369,7 +385,7 @@ class AlgoStrategy(gamelib.AlgoCore):
 
 
 
-
+	# TODO figure out how they attack and record the information
 	def on_action_frame(self, turn_string):
 		"""
 		This is the action frame of the game. This function could be called 
