@@ -146,15 +146,6 @@ class AlgoStrategy(gamelib.AlgoCore):
 		game_state.attempt_spawn(WALL, frontal_wall_1_locations)
 
 
-		if self.turret_repair_list:
-			game_state.attempt_spawn(TURRET, self.turret_repair_list)
-			self.repair_list = []
-
-		if self.wall_repair_list:
-			game_state.attempt_spawn(TURRET, self.turret_repair_list)
-			self.repair_list = []
-
-
 		permanent_turret_locations = [[3, 13], [24, 13]]
 		game_state.attempt_spawn(TURRET, permanent_turret_locations)
 		game_state.attempt_upgrade(permanent_turret_locations)
@@ -169,6 +160,16 @@ class AlgoStrategy(gamelib.AlgoCore):
 		main_turret_1_locations = [[20, 11], [21, 11]]
 		game_state.attempt_spawn(TURRET, main_turret_1_locations)
 		game_state.attempt_upgrade(main_turret_1_locations)
+
+
+		if self.turret_repair_list:
+			game_state.attempt_spawn(TURRET, self.turret_repair_list)
+			self.turret_repair_list = []
+
+
+		# if self.wall_repair_list:
+		# 	game_state.attempt_spawn(WALL, self.wall_repair_list)
+		# 	self.wall_repair_list = []
 
 
 		game_state.attempt_upgrade(frontal_wall_1_locations)
@@ -255,11 +256,11 @@ class AlgoStrategy(gamelib.AlgoCore):
 			+ frontal_wall_2_locations + frontal_wall_3_locations
 			+ frontal_wall_4_locations)
 
-		for location in all_wall_locations:
-			wall = game_state.contains_stationary_unit(location)
-			if wall and wall.health < 0.4 * wall.max_health: 
-				self.wall_repair_list.append(location)
-				game_state.attempt_remove(location)
+		# for location in all_wall_locations:
+		# 	wall = game_state.contains_stationary_unit(location)
+		# 	if wall and wall.health < 0.3 * wall.max_health: 
+		# 		self.wall_repair_list.append(location)
+		# 		game_state.attempt_remove(location)
 
 
 
@@ -278,13 +279,32 @@ class AlgoStrategy(gamelib.AlgoCore):
 		test_spawn_locations = [[21, 7], [8, 5], [19, 5], [10, 3], [17, 3], [15, 1], [13, 0]]
 		lowest_damage_amount, lowest_damage_spawn_location = self.least_damage_spawn_location(game_state, test_spawn_locations)
 
+		lowest_damage_path = game_state.find_path_to_edge(lowest_damage_spawn_location)
+		check_scout_pathing = lowest_damage_path[-1] in game_state.game_map.get_edge_locations(game_state.get_target_edge(lowest_damage_spawn_location))
+
 		gamelib.debug_write("Lowest possible damage is: {}, from location {}".format(lowest_damage_amount, lowest_damage_spawn_location))
 
-		if game_state.get_resource(MP) > attack_MP_threshold:
+		if lowest_damage_amount < 2 and game_state.get_resource(MP) > (attack_MP_threshold // 2) and check_scout_pathing:
+
+			if game_state.turn_number < 11:
+				game_state.attempt_spawn(INTERCEPTOR, [21, 7], 1)
+
+			game_state.attempt_spawn(SCOUT, lowest_damage_spawn_location, 1000)
+
+		elif game_state.get_resource(MP) > attack_MP_threshold:
 			game_state.attempt_spawn(DEMOLISHER, [18, 4], 1000)
 
 		elif game_state.turn_number < 11:
-			game_state.attempt_spawn(INTERCEPTOR, [21, 7], (2 - game_state.turn_number // 5))
+
+			if lowest_damage_amount < 2 and check_scout_pathing:
+				game_state.attempt_spawn(SCOUT, lowest_damage_spawn_location, 3)
+				interceptor_number = 1
+
+			else:
+				interceptor_number = (2 - game_state.turn_number // 5)
+
+				
+			game_state.attempt_spawn(INTERCEPTOR, [21, 7], interceptor_number)
 
 
 
