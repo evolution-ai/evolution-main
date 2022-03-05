@@ -1,3 +1,4 @@
+from xml.dom.minidom import parseString
 import gamelib
 import random
 import math
@@ -232,12 +233,15 @@ class AlgoStrategy(gamelib.AlgoCore):
 		pink_wall_locations = [[6, 11], [7, 11], [8, 11], [9, 11], [10, 11], [11, 11], [12, 11], [13, 11], [14, 11], [15, 11], [16, 11], [17, 11], [18, 11], [19, 11], [20, 11], [21, 11], [5, 12], [22, 12]]
 		pink_peri_wall = [[6, 11], [20, 11],[7, 11], [21, 11]]
 		pink_center_wall = [[8, 11], [9, 11], [10, 11], [11, 11], [12, 11], [13, 11], [14, 11], [15, 11], [16, 11], [17, 11], [18, 11], [19, 11]]
-		mid_turret_locations = [[8, 10], [12, 10]]
-		peri_turret_locations = [[15, 10], [19, 10]]
-		yellow_turret_locations = [[5, 11], [22, 11], [4, 11], [23, 11]]
-		yellow_wall_locations = [[6, 10], [7, 10], [9, 10], [10, 10], [11, 10], [13, 10], [14, 10], [16, 10], [17, 10], [18, 10], [20, 10], [21, 10], [5, 10], [22, 10]]
-		orange_turrent_locations = [[1, 12], [26, 12]]
 		
+		mid_turret_locations = [[15, 10], [12, 10]]
+		peri_turret_locations = [[8, 10], [19, 10]]
+		side_turret_locations = [[4,12], [24, 12], [3, 12], [24,12]]
+		flank_turret_locations = [[5, 11], [22, 11], [4, 11], [23, 11]]
+		extra_turret_locations = [[2,12], [24,12], [1, 12], [26, 12]]
+
+		turret_locations = [[15, 10], [12, 10],[8, 10], [19, 10],[2,12], [24,12], [1, 12], [26, 12],[4,12], [24, 12], [3, 12], [24,12], [5, 11], [22, 11], [4, 11], [23, 11]]
+		yellow_wall_locations = [[6, 10], [7, 10], [9, 10], [10, 10], [11, 10], [13, 10], [14, 10], [16, 10], [17, 10], [18, 10], [20, 10], [21, 10], [5, 10], [22, 10]]
 		base_support_locations = [[13, 3], [14, 3]]
 		extra_support_locations = [[12, 4], [13, 4], [14, 4], [15, 4]]
 
@@ -251,20 +255,24 @@ class AlgoStrategy(gamelib.AlgoCore):
 		# upgrades corner walls/ turrets 
 		self.build_permanent_defense(game_state, True)
 		
-		# upgrade peri turrets
-		game_state.attempt_upgrade(peri_turret_locations)
-
-		# add in two more wall units in the main line per side
-		game_state.attempt_spawn(WALL, pink_peri_wall)
+		# upgrade corner turrets
+		game_state.attempt_upgrade(side_turret_locations)
 
 		# upgrade 2 center turrets
 		game_state.attempt_upgrade(mid_turret_locations)
 
 		# spawn two turrets on the peripheries
-		game_state.attempt_spawn(TURRET, orange_turrent_locations)
+		game_state.attempt_spawn(TURRET, extra_turret_locations)
 
-		# add in more turrets
-		game_state.attempt_spawn(TURRET, yellow_turret_locations)
+		game_state.attempt_spawn(TURRET, flank_turret_locations)
+
+		game_state.attempt_upgrade(extra_turret_locations)
+		game_state.attempt_upgrade(flank_turret_locations)
+		
+		# upgrade peri turrets
+		game_state.attempt_upgrade(peri_turret_locations)
+		# add in two more wall units in the main line per side
+		game_state.attempt_spawn(WALL, pink_peri_wall)
 
 		# spawn wall between turrets behind main line 
 		game_state.attempt_spawn(WALL, yellow_wall_locations)
@@ -274,12 +282,20 @@ class AlgoStrategy(gamelib.AlgoCore):
 		if game_state.get_resource(SP) > 5:
 			game_state.attempt_upgrade(pink_wall_locations)
 
+		## REPAIR METHOD: If turrets fall below 50% of max health, then remove and put down again 
+		## what should the priorities be for this/?
+		for turret in turret_locations: 
+			if turret.health < 0.5 * turret.max_health: 
+				game_state.attempt_remove(turret)
+			
+	
 		game_state.attempt_spawn(SUPPORT, extra_support_locations)
 		game_state.attempt_upgrade(base_support_locations)
-		game_state.attempt_upgrade(yellow_turret_locations)
 		game_state.attempt_upgrade(pink_peri_wall)
 		game_state.attempt_upgrade(extra_support_locations)
 
+		game_state.attempt_spawn(TURRET, extra_turret_locations)
+		game_state.attempt_upgrade(extra_turret_locations)
 
 		# spawn interceptors if gap in wall
 		# check spawn points
@@ -401,7 +417,6 @@ class AlgoStrategy(gamelib.AlgoCore):
 		
 		return True
 
-
 	def mid_game_preppy(self, game_state): 
 		
 		self.determine_kamikaze_side(game_state)
@@ -410,8 +425,8 @@ class AlgoStrategy(gamelib.AlgoCore):
 		# prepare
 		yellow_wall_locations = [[6, 10], [7, 10], [9, 10], [10, 10], [11, 10], 
 			[13, 10], [14, 10], [16, 10], [17, 10], [18, 10], [20, 10], [21, 10]]
-		temp_left_wall_locations = [[ 0, 13],[ 1, 13],[ 1, 12]]
-		temp_right_wall_locations = [[ 26, 13],[ 27, 13],[ 26, 12]]
+		temp_left_wall_locations = [[ 0, 13],[ 1, 13],[ 1, 12], [2,12]]
+		temp_right_wall_locations = [[ 26, 13],[ 27, 13],[ 26, 12], [24, 12]]
 
 		if self.attack_state == LEFT_KAMIKAZE:
 			game_state.attempt_remove(temp_left_wall_locations)
