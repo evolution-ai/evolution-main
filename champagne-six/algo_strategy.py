@@ -23,7 +23,6 @@ Advanced strategy tips:
 
 class AlgoStrategy(gamelib.AlgoCore):
 
-
 	def __init__(self):
 		super().__init__()
 		seed = random.randrange(maxsize)
@@ -114,10 +113,14 @@ class AlgoStrategy(gamelib.AlgoCore):
 		interceptor_deploy_locations = [[5, 8], [22, 8]]
 		game_state.attempt_spawn(INTERCEPTOR, interceptor_deploy_locations)
 
-		additional_turret_locations = [[8, 11], [12, 11], [15, 11], [19, 11], [3, 12], [24, 12]]
-		game_state.attempt_spawn(TURRET, additional_turret_locations)
+		central_turret_locations = [[8, 11], [12, 11], [15, 11], [19, 11], [3, 12], [24, 12]]
+		game_state.attempt_spawn(TURRET, central_turret_locations)
 
-		game_state.attempt_upgrade(corner_turret_locations)
+		additional_wall_locations = [[9, 12], [18, 12]]
+		game_state.attempt_spawn(WALL, additional_wall_locations)
+
+		additional_turret_locations = [[9, 11], [18, 11]]
+		game_state.attempt_spawn(TURRET, additional_turret_locations)
 
 
 
@@ -125,8 +128,8 @@ class AlgoStrategy(gamelib.AlgoCore):
 
 	def mid_game_strategy(self, game_state):
 
-		attack_MP_threshold = 14 + (game_state.turn_number // 10)
-		attack_SP_threshold = 10
+		attack_MP_threshold = 12 + (game_state.turn_number // 14)
+		attack_SP_threshold = 9 - (game_state.turn_number // 20)
 		PICKUP_AMOUNT = self.get_pickup_refund(game_state)
 
 		# TODO: FIX THIS LOCATIONS
@@ -137,15 +140,14 @@ class AlgoStrategy(gamelib.AlgoCore):
 			self.mid_game_turtly(game_state)
 
 			SUFFICIENT_MP = game_state.get_resource(MP) > attack_MP_threshold
-			SUFFICIENT_SP = game_state.get_resource(SP) + PICKUP_AMOUNT + 5 > attack_SP_threshold
+			SUFFICIENT_SP = (game_state.get_resource(SP) + PICKUP_AMOUNT + 5) > attack_SP_threshold
 			SUPPORT_SPAWNED = self.check_support_spawned(game_state)
-			CHECK_KAMIKAZE = self.check_kamikaze(game_state)
 
 			# TODO: ONLY GO INTO PREPPY IF THERE ARE ENOUGH WALLS TO FUND AN ATTACK
-			if SUFFICIENT_SP and SUFFICIENT_MP and CHECK_KAMIKAZE:
+			if SUFFICIENT_SP and SUFFICIENT_MP:
 				self.mid_game_preppy(game_state)
 
-		elif self.attack_state == LEFT_KAMIKAZE:
+		else:
 			# kamikaze
 			self.mid_game_kamikazy(game_state)
 
@@ -203,7 +205,7 @@ class AlgoStrategy(gamelib.AlgoCore):
 			[10, 11], [11, 11], [16, 11], [17, 11], [18, 11]]
 
 		teal_turret_locations = [[5, 11], [22, 11]]
-		teal_wall_locations = [[6, 11], [7, 11], [20, 11], [21, 11]]
+		teal_wall_locations = [[6, 11], [7, 11], [20, 11], [21, 11], [13, 11], [14, 11]]
 		
 		# 24 points in pink 
 		game_state.attempt_spawn(WALL, pink_wall_locations)
@@ -214,6 +216,11 @@ class AlgoStrategy(gamelib.AlgoCore):
 		game_state.attempt_spawn(TURRET, teal_turret_locations)
 
 		# upgrades corner walls/ turrets 
+		self.build_permanent_defense(game_state)
+		self.build_temporary_defense(game_state)
+
+		game_state.attempt_upgrade([[12, 10], [15, 10]])
+
 		self.build_permanent_defense(game_state, True)
 		self.build_temporary_defense(game_state, True)
 
@@ -232,29 +239,31 @@ class AlgoStrategy(gamelib.AlgoCore):
 		# TODO: place_mid_defense -> add in more turrets in corner 	
 
 		# 8 upgrade outside pinks 
-		pink_peri_wall = [[6, 11], [20, 11],[7, 11], [21, 11]]
+		pink_peri_wall = [[6, 11], [20, 11], [7, 11], [21, 11], [5, 13], [23, 13]]
 		pink_center_wall = [[8, 11], [9, 11], [10, 11], [11, 11], [12, 11], [13, 11], [14, 11], [15, 11], [16, 11], [17, 11], [18, 11], [19, 11], [5, 12], [22, 12]]
 		
 		mid_turret_locations = [[15, 10], [12, 10]]
 		peri_turret_locations = [[8, 10], [19, 10]]
 		side_turret_locations = [[4,12], [24, 12], [3, 12], [24,12]]
-		flank_turret_locations = [[5, 11], [22, 11], [4, 11], [23, 11]]
-		extra_turret_locations = [[2,12], [24,12], [1, 12], [26, 12]]
-
-		turret_locations = [[15, 10], [12, 10],[8, 10], [19, 10],[2,12], [24,12], [1, 12], [26, 12],[4,12], [24, 12], [3, 12], [24,12], [5, 11], [22, 11], [4, 11], [23, 11]]
-		yellow_wall_locations = [[6, 10], [7, 10], [9, 10], [10, 10], [11, 10], [13, 10], [14, 10], [16, 10], [17, 10], [18, 10], [20, 10], [21, 10], [5, 10], [22, 10]]
+		flank_turret_locations = [[5, 11], [22, 11], [10, 10], [17, 10], [4, 11], [23, 11]]
+		extra_turret_locations = [[2, 12], [25, 12], [1, 12], [26, 12]]
+		
+		support_base_turret_locations = [[12,5], [15,5]]
+		turret_locations = mid_turret_locations + peri_turret_locations + side_turret_locations + flank_turret_locations + extra_turret_locations + support_base_turret_locations
+		yellow_wall_locations = [[6, 10], [7, 10], [9, 10], [11, 10], [13, 10], [14, 10], [16, 10], [18, 10], [20, 10], [21, 10], [5, 10], [22, 10]]
 		base_support_locations = [[13, 2], [14, 2]]
 		extra_support_locations = [[13, 4], [13, 3], [14, 3], [14, 4]]
 
-		# spawns the turrets that were removed for repair 
-		game_state.attempt_spawn(TURRET, self.repair_list)
-		self.repair_list = []
+		# spawns the turrets that were removed for repair
+		if self.repair_list:
+			game_state.attempt_spawn(TURRET, self.repair_list)
+			self.repair_list = []
 		
 		# spawns turrets in the center line
 		game_state.attempt_spawn(TURRET, mid_turret_locations)
 		game_state.attempt_spawn(TURRET, peri_turret_locations)
 
-		# spawns main wall 
+		# spawns main wall
 		game_state.attempt_spawn(WALL, pink_center_wall)
 		
 		# upgrades corner walls/ turrets 
@@ -268,11 +277,9 @@ class AlgoStrategy(gamelib.AlgoCore):
 
 		# spawn two turrets on the peripheries
 		game_state.attempt_spawn(TURRET, extra_turret_locations)
-
 		game_state.attempt_spawn(TURRET, flank_turret_locations)
 
 		game_state.attempt_upgrade(extra_turret_locations)
-
 		game_state.attempt_upgrade(flank_turret_locations)
 		
 		# upgrade peri turrets
@@ -291,14 +298,19 @@ class AlgoStrategy(gamelib.AlgoCore):
 
 		## REPAIR METHOD: If turrets fall below 50% of max health, then remove and put down again 
 		## what should the priorities be for this/?
-		for turret in turret_locations: 
-			if turret.health < 0.3 * turret.max_health: 
-				self.repair_list.append(turret)
-				game_state.attempt_remove(turret)
+		for location in turret_locations:
+			turret = game_state.contains_stationary_unit(location)
+			if turret and turret.health < 0.3 * turret.max_health: 
+				self.repair_list.append(location)
+				game_state.attempt_remove(location)
 			
 	
 		game_state.attempt_spawn(SUPPORT, extra_support_locations)
+
+		game_state.attempt_spawn(TURRET, support_base_turret_locations)
+
 		game_state.attempt_upgrade(base_support_locations)
+
 		game_state.attempt_upgrade(pink_peri_wall)
 		game_state.attempt_upgrade(extra_support_locations)
 
@@ -353,41 +365,38 @@ class AlgoStrategy(gamelib.AlgoCore):
 				right_corner_count += 1
 
 
+		num_spawned = game_state.turn_number // 30
+
 		if left_corner_count <= 3:
-			game_state.attempt_spawn(INTERCEPTOR, [2,11])
+			game_state.attempt_spawn(INTERCEPTOR, [2,11], num_spawned)
 
 		if left_flank_count <= 3 or ((left_corner_count + left_flank_count) <= 7):
-			game_state.attempt_spawn(INTERCEPTOR, [4,9])
+			game_state.attempt_spawn(INTERCEPTOR, [4,9], num_spawned)
 
 		if left_main_count <= 4:
-			game_state.attempt_spawn(INTERCEPTOR, [7,6])
+			game_state.attempt_spawn(INTERCEPTOR, [7,6], num_spawned)
 
 		if central_main_count <= 5:
 			game_state.attempt_spawn(INTERCEPTOR, [[7,6], [20, 6]])
 
 		if right_main_count <= 4:
-			game_state.attempt_spawn(INTERCEPTOR, [20,6])
+			game_state.attempt_spawn(INTERCEPTOR, [20,6], num_spawned)
 
 		if right_flank_count <= 3 or ((right_corner_count + right_flank_count) <= 7):
-			game_state.attempt_spawn(INTERCEPTOR, [23,9])
+			game_state.attempt_spawn(INTERCEPTOR, [23,9], num_spawned)
 
 		if right_corner_count <= 3:
-			game_state.attempt_spawn(INTERCEPTOR, [25,11])
+			game_state.attempt_spawn(INTERCEPTOR, [25,11], num_spawned)
 
-			
-		
-		# #TODO: PUT THE INTERCEPTORS AT BEST LOCATAION
-		# possible_end = game_state.find_path_to_edge([13,0])[-1]
 
-		# if possible_end in game_state.game_map.get_edge_locations(game_state.game_map.TOP_LEFT): 
-		# 	game_state.attempt_spawn(INTERCEPTOR, [[22,8], [23,9]])
-
-		# elif possible_end in game_state.game_map.get_edge_locations(game_state.game_map.TOP_RIGHT):
-		# 	game_state.attempt_spawn(INTERCEPTOR, [[4,9], [5,8]])
+		if self.get_pickup_refund(game_state) < 5:
+			game_state.attempt_spawn(INTERCEPTOR, [13, 0])
 
 
 
 
+
+	# TODO: MAKE THIS SIDE SPECIFIC
 	def get_pickup_refund(self, game_state):
 		yellow_wall_locations = [[6, 10], [7, 10], [9, 10], [10, 10], [11, 10], 
 				[13, 10], [14, 10], [16, 10], [17, 10], [18, 10], [20, 10], [21, 10]]
@@ -395,10 +404,8 @@ class AlgoStrategy(gamelib.AlgoCore):
 		refund = 0
 		for location in yellow_wall_locations:
 			struct = game_state.contains_stationary_unit(location)
-
 			if struct:
-				if struct.unit_type == WALL:
-					refund += (struct.health / struct.max_health)
+				refund += 1
 		
 		return refund
 
@@ -414,16 +421,6 @@ class AlgoStrategy(gamelib.AlgoCore):
 				return False
 
 
-	# TODO: make this side specific / 
-	def check_kamikaze(self, game_state):
-		wall_locations = [[2, 13], [3, 12], [25, 13], [24, 12]]
-
-		for location in wall_locations:
-			struct = game_state.contains_stationary_unit(location)
-			if not struct:
-				return False
-		
-		return True
 
 	def mid_game_preppy(self, game_state): 
 		
@@ -433,8 +430,8 @@ class AlgoStrategy(gamelib.AlgoCore):
 		# prepare
 		yellow_wall_locations = [[6, 10], [7, 10], [9, 10], [10, 10], [11, 10], 
 			[13, 10], [14, 10], [16, 10], [17, 10], [18, 10], [20, 10], [21, 10]]
-		temp_left_wall_locations = [[ 0, 13],[ 1, 13],[ 1, 12], [2,12]]
-		temp_right_wall_locations = [[ 26, 13],[ 27, 13],[ 26, 12], [24, 12]]
+		temp_left_wall_locations = [[0, 13],[1, 13],[1, 12], [2, 12], [3, 12], [4, 11]]
+		temp_right_wall_locations = [[26, 13], [27, 13],[26, 12], [25, 12]]
 
 		if self.attack_state == LEFT_KAMIKAZE:
 			game_state.attempt_remove(temp_left_wall_locations)
@@ -490,43 +487,75 @@ class AlgoStrategy(gamelib.AlgoCore):
 		interior_channel_wall_left = [[15, 3], [16, 3]]
 		interior_channel_wall_right = [[11, 3], [12, 3]]
 
-		game_state.attempt_spawn(WALL, back_channel_wall)
-		game_state.attempt_spawn(WALL, interior_channel_wall_left)
+		attack_channel_wall_left = [[5, 10], [6, 9], [7, 8], [8, 7], [9, 6], [10, 5], [11, 4], [12, 3]]
+		attack_front_wall_left = [[4, 11], [3, 12], [2, 13]]
 
-		attack_channel_wall_left = [[12, 3], [11, 4], [10, 5], [9, 6], [8, 7], [7, 8], [6, 9], [5, 10], [4, 11]]
-		attack_channel_wall_right = [[15, 3], [16, 4], [17, 5], [18, 6], [19, 7], [20, 8], [21, 9], [22, 10], [23, 11]]
+		attack_channel_wall_right = [[15, 3], [16, 4], [17, 5], [18, 6], [19, 7], [20, 8], [21, 9], [22, 10], [23, 11], [24, 12], [25, 13]]
 
-		left_kamikaze_wall = [1, 14]
-		right_kamikaze_wall = [26, 14]
+		left_kamikaze_wall = [[1, 14], [2, 14]]
+		right_kamikaze_wall = [[25, 14], [26, 14]]
 
 		attack_spawn_locs_left = []
 		attack_spawn_locs_right = []
 
+
+		to_kamikaze = True
+
+		for location in left_kamikaze_wall:
+			if game_state.contains_stationary_unit(location):
+				pass
+			else:
+				to_kamikaze = False
+
+
+		if not to_kamikaze and (not game_state.contains_stationary_unit([0, 14]) or not game_state.contains_stationary_unit([1, 15])):
+			to_kamikaze = True
+
 		# TODO: add switching based on self.attack_state == LEFT_KAMIKAZE or self.attack_state == RIGHT_KAMIKAZE
 		
-		for location in attack_channel_wall_left:
-			if game_state.get_resource(SP) > req_points + 3:
-				game_state.attempt_spawn(SUPPORT, location)
-				num_sups += 1
-			else:
-				game_state.attempt_spawn(WALL, location)
-			req_points -= 1
+		game_state.attempt_spawn(WALL, interior_channel_wall_left)
+
+		if to_kamikaze:
+
+			game_state.attempt_spawn(WALL, back_channel_wall)
+			game_state.attempt_spawn(WALL, attack_front_wall_left)
+			
+			for location in attack_channel_wall_left:
+				if game_state.get_resource(SP) > req_points + 2:
+					game_state.attempt_spawn(SUPPORT, location)
+					num_sups += 1
+				else:
+					game_state.attempt_spawn(WALL, location)
+				req_points -= 1
+
+		else:
+			# DESTRUCTOR ATTACK
+			pink_peri_wall = [[6, 11], [20, 11], [7, 11], [21, 11], [5, 13], [23, 13]]
+			pink_center_wall = [[8, 11], [9, 11], [10, 11], [11, 11], [12, 11], [13, 11], [14, 11], [15, 11], [16, 11], [17, 11], [18, 11], [19, 11], [5, 12], [22, 12]]
+			game_state.attempt_spawn(WALL, pink_peri_wall)
+			game_state.attempt_spawn(WALL, pink_center_wall)
+			game_state.attempt_spawn(SUPPORT, back_channel_wall)
+			game_state.attempt_spawn(SUPPORT, attack_channel_wall_left)
+			game_state.attempt_spawn(SUPPORT, attack_front_wall_left)
+		
+		game_state.attempt_upgrade(attack_channel_wall_left)
 
 		game_state.attempt_remove(interior_channel_wall_left)
 		game_state.attempt_remove(attack_channel_wall_left)
 
 		for location in back_channel_wall: 
-			struct = game_state.contain_stationary_unit(location)
+			struct = game_state.contains_stationary_unit(location)
 			if struct.unit_type == WALL: 
 				game_state.attempt_remove(location)
 
-
-
-		if game_state.contains_stationary_unit(left_kamikaze_wall):
-			game_state.attempt_spawn(SCOUT, [16, 2], 5 + num_sups // 2)
-			game_state.attempt_spawn(SCOUT, [14, 0], 1000)
+		
+		if to_kamikaze:
+			game_state.attempt_spawn(SCOUT, [14, 0], int(12 - (num_sups // 2)))
+			game_state.attempt_spawn(SCOUT, [14, 0], int(game_state.get_resource(MP) // 8))
+			game_state.attempt_spawn(SCOUT, [16, 2], 1000)
 
 		else:
+			# DESTRUCTOR ATTACK
 			game_state.attempt_spawn(DEMOLISHER, [14, 0], 1000)
 
 		self.attack_state = DEFEND
