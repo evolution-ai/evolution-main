@@ -55,9 +55,26 @@ class AlgoStrategy(gamelib.AlgoCore):
 		KAMIKAZE = 2
 
 		# MACROS FOR DIRECTION
+
 		global LEFT, RIGHT
 		LEFT = -1
 		RIGHT = 1
+
+
+		# MACROS FOR STRUCTURE FEATURE
+		global DEEP_V, SHALLOW_V, RAILGUN, WEAK_LEFT_LINE, WEAK_RIGHT_LINE, FRONTAL_WALLS, STRONG_LEFT_CLUSTER, STRONG_RIGHT_CLUSTER, WEAK_LEFT_CLUSTER, WEAK_RIGHT_CLUSTER
+
+		DEEP_V = 0
+		SHALLOW_V = 1
+		RAILGUN = 2
+		WEAK_LEFT_LINE = 3
+		WEAK_RIGHT_LINE = 4
+		FRONTAL_WALLS = 5
+		STRONG_LEFT_CLUSTER = 6
+		STRONG_RIGHT_CLUSTER = 7
+		WEAK_LEFT_CLUSTER = 8
+		WEAK_RIGHT_CLUSTER = 9
+
 
 		self.attack_state = DEFEND
 		
@@ -70,6 +87,9 @@ class AlgoStrategy(gamelib.AlgoCore):
 		self.wall_repair_list = []
 
 		self.reactionary_turrets = []
+		self.opponent_structure_history = {}
+
+		self.convolutional_filter_bank = self.create_convolutional_filter_bank()
 
 
 
@@ -84,12 +104,15 @@ class AlgoStrategy(gamelib.AlgoCore):
 			self.early_game_strategy(game_state)
 		else:
 			self.mid_game_strategy(game_state)
+
+		self.predict_enemy_structure(game_state)
 			
 		# Submit the moves to terminal
 		game_state.submit_turn()
 
 
 
+	#TODO: release the interceptors
 	def early_game_strategy(self, game_state):
 
 		# central turrets and corner turrets
@@ -115,6 +138,7 @@ class AlgoStrategy(gamelib.AlgoCore):
 		additional_wall_locations = [[6, 12], [21, 12], [7, 11], [8, 11], [19, 11], [20, 11]]
 		game_state.attempt_spawn(WALL, additional_wall_locations)
 
+		game_state.attempt_spawn(INTERCEPTOR, [[7, 6], [20, 6]])
 
 		# Clear out everything if we are at the transition turn
 		if game_state.turn_number == self.early_phase:
@@ -195,6 +219,11 @@ class AlgoStrategy(gamelib.AlgoCore):
 		game_state.attempt_upgrade(frontal_wall_3_locations)
 
 
+		main_support_1_bank = [[20, 9], [21, 9]]
+		game_state.attempt_spawn(SUPPORT, main_support_1_bank)
+		game_state.attempt_upgrade(main_support_1_bank)
+
+
 		main_turret_4_locations = [[21, 10]]
 		game_state.attempt_spawn(TURRET, main_turret_4_locations)
 		game_state.attempt_upgrade(main_turret_4_locations)
@@ -204,10 +233,6 @@ class AlgoStrategy(gamelib.AlgoCore):
 		game_state.attempt_spawn(WALL, frontal_wall_4_locations)
 		game_state.attempt_upgrade(frontal_wall_4_locations)
 
-
-		main_support_1_bank = [[20, 9], [21, 9]]
-		game_state.attempt_spawn(SUPPORT, main_support_1_bank)
-		game_state.attempt_upgrade(main_support_1_bank)
 
 		main_turret_5_locations = [[22, 10], [25, 12]]
 		game_state.attempt_spawn(TURRET, main_turret_5_locations)
@@ -355,7 +380,122 @@ class AlgoStrategy(gamelib.AlgoCore):
 
 
 
+	def predict_enemy_structure(self, game_state):
+
+		enemy_structure = self.get_all_enemy_structures(game_state)
+		filter_results = dict()
+
+		for i in range(10):
+			filter_results[i] = self.apply_convolution(game_state, enemy_structure, i)
+
+
+		if filter_results[DEEP_V] >= 8:
+			gamelib.debug_write("DEEP_V")
+		
+		if filter_results[SHALLOW_V] >= 8:
+			gamelib.debug_write("SHALLOW_V")
+		
+		if filter_results[RAILGUN] >= 15:
+			gamelib.debug_write("RAILGUN")
+		
+		if filter_results[WEAK_LEFT_LINE] >= 9:
+			gamelib.debug_write("WEAK_LEFT_LINE")
+		
+		if filter_results[WEAK_RIGHT_LINE] >= 9:
+			gamelib.debug_write("WEAK_RIGHT_LINE")
+		
+		if filter_results[FRONTAL_WALLS] >= 14:
+			gamelib.debug_write("FRONTAL_WALLS")
+		
+		if filter_results[STRONG_LEFT_CLUSTER] >= 6:
+			gamelib.debug_write("STRONG_LEFT_CLUSTER")
+		
+		if filter_results[STRONG_RIGHT_CLUSTER] >= 6:
+			gamelib.debug_write("STRONG_RIGHT_CLUSTER")
+		
+		if filter_results[WEAK_LEFT_CLUSTER] >= 4:
+			gamelib.debug_write("WEAK_LEFT_CLUSTER")
+		
+		if filter_results[WEAK_RIGHT_CLUSTER] >= 4:
+			gamelib.debug_write("WEAK_RIGHT_CLUSTER")
+
+		
+
+
+
+
+
+	def update_structure_history(self, game_state):
+
+		pass
+
+
+
+	def apply_convolution(self, game_state, enemy_structure, filter_number):
+
+		score = 0
+
+		for location in enemy_structure:
+			if location in self.convolutional_filter_bank[filter_number][1]:
+				score += 1
+			elif location in self.convolutional_filter_bank[filter_number][-1]:
+				score -= 1
+
+		return score
+
+
+
+
+
+
+
+	def create_convolutional_filter_bank(self):
+
+		filter_bank = dict()
+
+		for i in range(10):
+			filter_bank[i] = {1: set(), -1: set()}
+
+		filter_bank[DEEP_V][1] = set([(10, 22), (11, 22), (12, 22), (13, 22), (14, 22), (15, 22), (16, 22), (17, 22), (9, 21), (10, 21), (11, 21), (12, 21), (13, 21), (14, 21), (15, 21), (16, 21), (17, 21), (18, 21), (8, 20), (9, 20), (18, 20), (19, 20), (7, 19), (8, 19), (19, 19), (20, 19), (7, 18), (8, 18), (19, 18), (20, 18), (6, 17), (7, 17), (20, 17), (21, 17), (5, 16), (6, 16), (21, 16), (22, 16)])
+		filter_bank[DEEP_V][-1] = set([(12, 19), (13, 19), (14, 19), (15, 19), (11, 18), (12, 18), (13, 18), (14, 18), (15, 18), (16, 18), (11, 17), (12, 17), (13, 17), (14, 17), (15, 17), (16, 17), (10, 16), (11, 16), (12, 16), (13, 16), (14, 16), (15, 16), (16, 16), (17, 16), (10, 15), (11, 15), (12, 15), (13, 15), (14, 15), (15, 15), (16, 15), (17, 15), (10, 14), (11, 14), (12, 14), (13, 14), (14, 14), (15, 14), (16, 14), (17, 14)])
+
+		filter_bank[SHALLOW_V][1] = set([(7, 18), (8, 18), (9, 18), (10, 18), (11, 18), (12, 18), (13, 18), (14, 18), (15, 18), (16, 18), (17, 18), (18, 18), (19, 18), (20, 18), (5, 17), (6, 17), (7, 17), (8, 17), (9, 17), (10, 17), (11, 17), (12, 17), (13, 17), (14, 17), (15, 17), (16, 17), (17, 17), (18, 17), (19, 17), (20, 17), (21, 17), (22, 17), (4, 16), (5, 16), (6, 16), (7, 16), (8, 16), (9, 16), (18, 16), (19, 16), (20, 16), (21, 16), (22, 16), (23, 16), (2, 15), (3, 15), (4, 15), (23, 15), (24, 15), (25, 15), (0, 14), (1, 14), (2, 14), (3, 14), (24, 14), (25, 14), (26, 14), (27, 14)])
+		filter_bank[SHALLOW_V][-1] = set([(11, 25), (12, 25), (13, 25), (14, 25), (15, 25), (16, 25), (11, 24), (12, 24), (13, 24), (14, 24), (15, 24), (16, 24), (10, 23), (11, 23), (12, 23), (13, 23), (14, 23), (15, 23), (16, 23), (17, 23), (10, 22), (11, 22), (12, 22), (13, 22), (14, 22), (15, 22), (16, 22), (17, 22), (9, 21), (10, 21), (11, 21), (12, 21), (13, 21), (14, 21), (15, 21), (16, 21), (17, 21), (18, 21), (7, 20), (8, 20), (9, 20), (10, 20), (11, 20), (12, 20), (13, 20), (14, 20), (15, 20), (16, 20), (17, 20), (18, 20), (19, 20), (20, 20), (10, 15), (11, 15), (12, 15), (13, 15), (14, 15), (15, 15), (16, 15), (17, 15), (7, 14), (8, 14), (9, 14), (10, 14), (11, 14), (12, 14), (13, 14), (14, 14), (15, 14), (16, 14), (17, 14), (18, 14), (19, 14), (20, 14)])
+	
+		filter_bank[RAILGUN][1] = set([(13, 27), (14, 27), (12, 26), (13, 26), (14, 26), (15, 26), (12, 25), (13, 25), (14, 25), (15, 25), (12, 24), (13, 24), (14, 24), (15, 24), (12, 23), (13, 23), (14, 23), (15, 23), (12, 22), (13, 22), (14, 22), (15, 22), (12, 21), (13, 21), (14, 21), (15, 21), (12, 20), (13, 20), (14, 20), (15, 20), (12, 19), (13, 19), (14, 19), (15, 19), (12, 18), (13, 18), (14, 18), (15, 18), (12, 17), (13, 17), (14, 17), (15, 17), (12, 16), (13, 16), (14, 16), (15, 16), (12, 15), (13, 15), (14, 15), (15, 15)])
+		filter_bank[RAILGUN][-1] = set([(9, 23), (18, 23), (8, 22), (9, 22), (18, 22), (19, 22), (7, 21), (8, 21), (9, 21), (18, 21), (19, 21), (20, 21), (6, 20), (7, 20), (8, 20), (9, 20), (18, 20), (19, 20), (20, 20), (21, 20), (5, 19), (6, 19), (7, 19), (8, 19), (9, 19), (18, 19), (19, 19), (20, 19), (21, 19), (22, 19), (4, 18), (5, 18), (6, 18), (7, 18), (8, 18), (9, 18), (18, 18), (19, 18), (20, 18), (21, 18), (22, 18), (23, 18), (3, 17), (4, 17), (5, 17), (6, 17), (7, 17), (8, 17), (9, 17), (18, 17), (19, 17), (20, 17), (21, 17), (22, 17), (23, 17), (24, 17), (2, 16), (3, 16), (4, 16), (5, 16), (6, 16), (7, 16), (8, 16), (9, 16), (18, 16), (19, 16), (20, 16), (21, 16), (22, 16), (23, 16), (24, 16), (25, 16), (1, 15), (2, 15), (3, 15), (4, 15), (5, 15), (6, 15), (7, 15), (8, 15), (9, 15), (18, 15), (19, 15), (20, 15), (21, 15), (22, 15), (23, 15), (24, 15), (25, 15), (26, 15), (1, 14), (2, 14), (3, 14), (4, 14), (5, 14), (6, 14), (7, 14), (8, 14), (9, 14), (18, 14), (19, 14), (20, 14), (21, 14), (22, 14), (23, 14), (24, 14), (25, 14), (26, 14)])
+
+		filter_bank[WEAK_LEFT_LINE][1] = set([(9, 23), (8, 22), (7, 21), (6, 20), (5, 19), (4, 18), (3, 17), (2, 16), (1, 15), (0, 14)])
+		filter_bank[WEAK_LEFT_LINE][-1] = set([(9, 22), (8, 21), (7, 20), (6, 19), (5, 18), (4, 17), (3, 16), (2, 15)])
+
+		filter_bank[WEAK_RIGHT_LINE][1] = set([(18, 23), (19, 22), (20, 21), (21, 20), (22, 19), (23, 18), (24, 17), (25, 16), (26, 15), (27, 14)])
+		filter_bank[WEAK_RIGHT_LINE][-1] = set([(18, 22), (19, 21), (20, 20), (21, 19), (22, 18), (23, 17), (24, 16), (25, 15), (26, 14)])
+
+		filter_bank[FRONTAL_WALLS][1] = set([(4, 14), (5, 14), (6, 14), (7, 14), (8, 14), (9, 14), (10, 14), (11, 14), (12, 14), (13, 14), (14, 14), (15, 14), (16, 14), (17, 14), (18, 14), (19, 14), (20, 14), (21, 14), (22, 14), (23, 14)])
+		filter_bank[FRONTAL_WALLS][-1] = set([(5, 15), (6, 15), (7, 15), (8, 15), (9, 15), (10, 15), (11, 15), (12, 15), (13, 15), (14, 15), (15, 15), (16, 15), (17, 15), (18, 15), (19, 15), (20, 15), (21, 15), (22, 15)])
+
+		filter_bank[STRONG_LEFT_CLUSTER][1] = set([(3, 17), (4, 17), (5, 17), (2, 16), (3, 16), (4, 16), (5, 16), (1, 15), (2, 15), (3, 15), (4, 15), (5, 15), (0, 14), (1, 14), (2, 14), (3, 14), (4, 14)])
+		filter_bank[STRONG_LEFT_CLUSTER][-1] = set([(13, 27), (12, 26), (13, 26), (11, 25), (12, 25), (13, 25), (10, 24), (11, 24), (12, 24), (9, 23), (10, 23), (11, 23), (8, 22), (9, 22), (10, 22), (7, 21), (8, 21), (9, 21), (6, 20), (7, 20), (8, 20), (5, 19), (6, 19), (7, 19)])
+
+		filter_bank[STRONG_RIGHT_CLUSTER][1] = set([(22, 17), (23, 17), (24, 17), (22, 16), (23, 16), (24, 16), (25, 16), (22, 15), (23, 15), (24, 15), (25, 15), (26, 15), (23, 14), (24, 14), (25, 14), (26, 14), (27, 14)])
+		filter_bank[STRONG_RIGHT_CLUSTER][-1] = set([(14, 27), (14, 26), (15, 26), (14, 25), (15, 25), (16, 25), (15, 24), (16, 24), (17, 24), (16, 23), (17, 23), (18, 23), (17, 22), (18, 22), (19, 22), (18, 21), (19, 21), (20, 21), (19, 20), (20, 20), (21, 20), (20, 19), (21, 19), (22, 19)])
+
+		filter_bank[WEAK_LEFT_CLUSTER][1] = set([(0, 14), (1, 14), (2, 14), (3, 14)])
+		filter_bank[WEAK_LEFT_CLUSTER][-1] = set([(2, 16), (1, 15), (2, 15)])
+
+		filter_bank[WEAK_RIGHT_CLUSTER][1] = set([(24, 14), (25, 14), (26, 14), (27, 14)])
+		filter_bank[WEAK_RIGHT_CLUSTER][-1] = set([(25, 16), (25, 15), (26, 15)])
+
+		return filter_bank
+		
+		
+
+
+
+
+
 	def get_all_enemy_structures(self, game_state):
+
 		structure_set = set()
 
 		for x in range(0, 14):
@@ -370,6 +510,8 @@ class AlgoStrategy(gamelib.AlgoCore):
 				if unit:
 					structure_set.add((x, y))
 
+		return structure_set
+
 
 
 
@@ -381,6 +523,7 @@ class AlgoStrategy(gamelib.AlgoCore):
 			if not game_state.contains_stationary_unit(location):
 				filtered.append(location)
 		return filtered
+
 
 
 
