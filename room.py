@@ -1,4 +1,4 @@
-from body import Agent
+from body import *
 import numpy as np
 # import matplotlib.pyplot as plt
 import pygame as pg
@@ -6,7 +6,7 @@ from visualizer import Visualizer
 import csv
 import os
 
-__PRINT_TO_CSV__ = True 
+__PRINT_TO_CSV__ = False 
 
 class Environment:
 	def __init__(self):
@@ -56,18 +56,54 @@ class Environment:
 		
 		for i in range(self.foodN):
 			self.food_dict[tuple(food_pos[i])] = 5
+	
+
+	# TODO how to account for selection / recombination 
+	def new_baby_agent(self, parent1, parent2):
+		position = (np.random.random_sample((1,2)) - 0.5) * self.gridsize
+		velocity  = np.zeros((1,2))
+		return Agent(position[0], velocity[0])
 
 	def update(self):
 
 		acc = np.zeros((self.N,2))
+
+		reproduced = set()
+		babies = []
+
 		for i, agent in enumerate(self.agents):
-			(acc[i], to_eat_action, rel_pos) = agent.determine_next_move(self.food_dict)
+			if agent in reproduced:
+				continue
+
+			(acc[i], action, rel_pos) = agent.determine_next_move(self.food_dict, self.agents)
 			row = rel_pos
-			row.extend([acc[i][0], acc[i][1], to_eat_action[0]])
-			self.csv.writerow(row)
-			if to_eat_action[0]:
-				food_energy = self.food_dict.pop(to_eat_action[1])
+			row.extend([acc[i][0], acc[i][1], action[0]])
+
+			if __PRINT_TO_CSV__:
+				self.csv.writerow(row)
+
+			if action[0] == EAT:
+				food_energy = self.food_dict.pop(action[1])
 				agent.energy += food_energy
+			elif action[0] == REPRODUCE:
+				parent1 = agent
+				parent2 = action[1]
+
+				if parent2.get_want() == REPRODUCE and (parent2 not in reproduced and parent1 not in reproduced):
+					reproduced.add(parent1)
+					reproduced.add(parent2)
+					
+					new_baby = self.new_baby_agent(parent1, parent2)
+					babies.append(new_baby)
+
+		for new_baby in babies:
+			self.agents.append(new_baby)
+			self.N += 1
+			print(self.pos.shape)
+			print(new_baby.pos.shape)
+			self.pos = np.append(self.pos, [new_baby.pos], axis = 0)
+			self.vel = np.append(self.vel, [new_baby.vel], axis = 0)
+			acc = np.append(acc, np.zeros((1,2)), axis = 0)
 
 		return acc
 		
@@ -86,8 +122,8 @@ class Environment:
 		Nt = int(np.ceil(self.tEnd/self.dt))
 		
 		# save energies, particle orbits for plotting trails
-		pos_save = np.zeros((self.N,2,Nt+1))
-		pos_save[:,:,0] = self.pos
+		# pos_save = np.zeros((self.N,2,Nt+1))
+		# pos_save[:,:,0] = self.pos
 		
 
 		# Simulation Main Loop
@@ -108,7 +144,7 @@ class Environment:
 			self.t += self.dt
 			
 			# save energies, positions for plotting trail
-			pos_save[:,:,i+1] = self.pos
+			# pos_save[:,:,i+1] = self.pos
 			
 			# plot in real time
 			if self.plotRealTime or (i == Nt-1):
