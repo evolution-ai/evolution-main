@@ -28,9 +28,11 @@ REPRODUCE = 2
 class Agent:
 
 	def __init__(self, position, init_velocity, size = 1.0, energy = 20.0, 
-	sight_range = 20.0, max_speed = 5.0, max_acc = 5.0, eat_range = 1.0, max_energy = 20.0, can_reproduce = True):
+	sight_range = 20.0, max_speed = 5.0, max_acc = 5.0, eat_range = 1.0, max_energy = 20.0, can_reproduce = True, energy_consumption = 0.1):
 		self.pos = position 
 		self.vel = init_velocity
+
+		self.energy_consumption = energy_consumption
 
 		self.energy = energy
 		self.max_energy = energy
@@ -39,8 +41,16 @@ class Agent:
 		self.max_acc = max_acc
 		self.eat_range = eat_range
 		self.can_reproduce = can_reproduce
+
+		self.lifetime = 0
+
 		pass
 		
+	def is_dead(self):
+		if self.energy <= 0:
+			return True
+		else:
+			return False
 	
 	def reproduce(self):
 		if self.energy > 0.7 * self.max_energy:
@@ -97,7 +107,7 @@ class Agent:
 
 
 		a = (a / np.linalg.norm(a)) * self.max_acc
-		self.energy -= 0.1
+		self.energy -= self.energy_consumption
 
 		return (a, action, rel_pos)
 
@@ -149,6 +159,7 @@ class Agent:
 		return EAT
 
 	def determine_next_move(self, food_dict, agent_list):
+		self.lifetime += 1
 		#TODO get this to work with sight range, energy, food locations
 		# given the environment/state, figure out what to do next
 
@@ -156,9 +167,11 @@ class Agent:
 
 		# pick between reproduce vs eating
 		want = self.get_want()
-
+		
 		if want == EAT:
 			return self.get_eat_move(food_dict)
 		elif want == REPRODUCE:
 			return self.get_reproduce_move(agent_list)
+
+		
 		

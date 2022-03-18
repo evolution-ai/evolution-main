@@ -11,7 +11,7 @@ __PRINT_TO_CSV__ = False
 class Environment:
 	def __init__(self):
 		# Simulation parameters
-		self.N         = 5       # Number of agents
+		self.N         = 10       # Number of agents
 		self.t         = 0       # current time of the simulation
 		self.tEnd      = 1000     # time at which simulation ends
 		self.dt        = 0.02    # time step size
@@ -21,7 +21,7 @@ class Environment:
 		self.gridsize = 100.0
 		self.viz = Visualizer()
 
-		self.foodN = 10
+		self.foodN = 100
 		self.food_dict = dict()
 
 		self.initialize_positions()
@@ -62,7 +62,12 @@ class Environment:
 	def new_baby_agent(self, parent1, parent2):
 		position = (np.random.random_sample((1,2)) - 0.5) * self.gridsize
 		velocity  = np.zeros((1,2))
-		return Agent(position[0], velocity[0])
+
+		baby = Agent(position[0], velocity[0])
+		
+		# for parameters, sample from each parent +-1 some gaussian
+		
+		return baby
 
 	def update(self):
 
@@ -110,6 +115,45 @@ class Environment:
 	def is_running(self):
 		return self.running
 
+	def check_bounds(self):
+		for i, agent in enumerate(self.agents):
+			curr_pos = self.pos[i]
+
+			if curr_pos[0] > self.gridsize:
+				curr_pos[0] = self.gridsize
+			elif curr_pos[0] < -self.gridsize:
+				curr_pos[0] = -self.gridsize
+			
+			if curr_pos[1] > self.gridsize:
+				curr_pos[1] = self.gridsize
+			elif curr_pos[1] < -self.gridsize:
+				curr_pos[1] = -self.gridsize
+
+			agent.pos = curr_pos
+			pass
+	
+	def remove_dead_agents(self):
+
+		dead  = list(filter(lambda a: a.is_dead(), self.agents))
+		for d in dead:
+			print(d.lifetime)
+		self.agents = list(filter(lambda a: not a.is_dead(), self.agents))
+
+		oldN = self.N
+		self.N = len(self.agents)
+
+		if oldN != self.N:
+			new_pos = np.zeros((self.N, 2))
+			new_vel = np.zeros((self.N, 2))
+			
+			for i, agent in enumerate(self.agents):
+				new_pos[i] = agent.pos
+				new_vel[i] = agent.vel
+
+			self.pos = new_pos
+			self.vel = new_vel
+	
+
 	def run(self):
 
 		# Convert to Center-of-Mass frame
@@ -133,9 +177,17 @@ class Environment:
 			
 			# drift
 			self.pos += self.vel * self.dt
+
+			# cull the weak
+			self.remove_dead_agents()
 			
+			# make sure boundaries respected
+			self.check_bounds()
+
 			# update accelerations
 			acc = self.update()
+
+			
 			
 			# (1/2) kick
 			self.vel += acc * self.dt/2.0
