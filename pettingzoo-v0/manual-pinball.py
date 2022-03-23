@@ -20,6 +20,7 @@ HOLD = np.array([0.], dtype=np.float32)
 count = 0
 
 # manual policy works
+# main method
 def policy(obs):
 
     global count
