@@ -40,15 +40,8 @@ class Agent(object):
 
 
 
-
-
-
-
-
 class Basic_Predator_Agent(Agent):  
 
-    # TODO: add in more agent parameters
-    # TODO: make "genetic parameters"
     def __init__(self, start_x: int, start_y: int, preys: list):
 
         super().__init__(start_x, start_y)
