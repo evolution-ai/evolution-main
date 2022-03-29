@@ -11,9 +11,11 @@ from dataclasses import dataclass
 
 ## Class definition:
 
+# Action Macros
 MOVE = 0
 EAT = 1
 REPRODUCE = 2
+
 ## Fields:
 
 ## Interface
