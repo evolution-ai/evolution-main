@@ -21,7 +21,11 @@ class Environment:
 		self.gridsize = 100.0
 		self.viz = Visualizer()
 
+<<<<<<< Updated upstream
 		self.foodN = 100
+=======
+		self.foodN = 250
+>>>>>>> Stashed changes
 		self.food_dict = dict()
 
 		self.initialize_positions()
