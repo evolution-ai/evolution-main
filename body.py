@@ -9,7 +9,6 @@ from dataclasses import dataclass
 
 
 
-
 # @dataclass
 # class Action:
 # 	accelaration: np.array()
@@ -27,21 +26,30 @@ REPRODUCE = 2
 ## Interface
 class Agent:
 
-	def __init__(self, position, init_velocity, size = 1.0, energy = 20.0, 
-	sight_range = 20.0, max_speed = 5.0, max_acc = 5.0, eat_range = 1.0, max_energy = 20.0, can_reproduce = True, energy_consumption = 0.1):
+	def __init__(self, position, init_velocity, size = 10.0, energy = 20.0, 
+	sight_range = 40.0, max_speed = 5.0, max_acc = 5.0, eat_range = 1.0, max_energy = 20.0, behavioural = 2.0,
+	can_reproduce = True, energy_consumption = 0.01, agent_id = 0):
+		
 		self.pos = position 
 		self.vel = init_velocity
+		self.size = size
 
-		self.energy_consumption = energy_consumption
+		self.energy_consumption = ((size**2 
+			* sight_range/20
+			* max_speed/5 
+			* max_acc/5) 
+			/ 1000)
 
 		self.energy = energy
-		self.max_energy = energy
+		self.max_energy = size
 		self.sight_range = sight_range
 		self.max_speed = max_speed
 		self.max_acc = max_acc
+		self.behavioural = behavioural
 		self.eat_range = eat_range
 		self.can_reproduce = can_reproduce
 
+		self.agent_id = agent_id
 		self.lifetime = 0
 
 		pass
@@ -59,6 +67,7 @@ class Agent:
 				self.can_reproduce = True
 				return
 		self.can_reproduce = False
+
 
 	def get_eat_move(self, food_dict):
 		dists = []
@@ -84,7 +93,7 @@ class Agent:
 			if min_dist < self.eat_range:
 				action = (EAT, food_loc)
 
-			a = (2 * np.array(closest_food) - self.vel)
+			a = (self.behavioural * np.array(closest_food) - self.vel)
 
 		else:
 			ax = np.random.random((1,)) - 0.5
@@ -92,6 +101,7 @@ class Agent:
 			a = np.hstack((ax,ay))
 
 		rel_pos = list(map(lambda x : x[2], dists))
+
 		while 5 - len(rel_pos) > 0:
 			theta = random.uniform(0,1)*2*math.pi
 			rel_pos.append((self.sight_range*math.cos(theta), self.sight_range*math.sin(theta)))
@@ -105,11 +115,11 @@ class Agent:
 		# # pack together the acceleration components
 		# a = np.hstack((ax,ay))
 
-
 		a = (a / np.linalg.norm(a)) * self.max_acc
 		self.energy -= self.energy_consumption
 
 		return (a, action, rel_pos)
+
 
 	def get_reproduce_move(self, agent_list):
 		dists = []
@@ -158,6 +168,7 @@ class Agent:
 
 		return EAT
 
+
 	def determine_next_move(self, food_dict, agent_list):
 		self.lifetime += 1
 		#TODO get this to work with sight range, energy, food locations
@@ -173,5 +184,15 @@ class Agent:
 		elif want == REPRODUCE:
 			return self.get_reproduce_move(agent_list)
 
-		
+
+	def display_agent(self):
+		print("AGENT ID:", self.agent_id)
+		print("Size:", self.size)
+		print("Energy:", self.energy)
+		print("Max Energy:", self.max_energy)
+		print("Sight Range:", self.sight_range)
+		print("Max Speed:", self.max_speed)
+		print("Max Acc:", self.max_acc)
+		print("Behaviour:", self.behavioural)
+		print("\n")
 		
