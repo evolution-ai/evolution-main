@@ -82,13 +82,10 @@ class Environment:
 
 			(acc[i], action, rel_pos) = agent.determine_next_move(self.food_dict, self.agents)
 			row = rel_pos
-			row.extend([acc[i][0], acc[i][1], action[0]])
-
-			if __PRINT_TO_CSV__:
-				self.csv.writerow(row)
-
-			if action[0] == EAT:
-				food_energy = self.food_dict.pop(action[1])
+			row.extend([acc[i][0], acc[i][1], to_eat_action[0]])
+			self.csv.writerow(row) if __PRINT_TO_CSV__ else False
+			if to_eat_action[0]:
+				food_energy = self.food_dict.pop(to_eat_action[1])
 				agent.energy += food_energy
 			elif action[0] == REPRODUCE:
 				parent1 = agent
