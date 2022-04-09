@@ -41,7 +41,7 @@ class Agent:
 			/ 1000)
 
 		self.energy = energy
-		self.max_energy = size
+		self.max_energy = 5*size
 		self.sight_range = sight_range
 		self.max_speed = max_speed
 		self.max_acc = max_acc

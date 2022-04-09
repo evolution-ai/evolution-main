@@ -39,16 +39,16 @@ class Population:
 
 class Environment:
 
-	def __init__(self, population_params, plot_real_time = True):
+	def __init__(self, population_params, plot_real_time = True, temperature = 100):
 
 		self.population_params = population_params
 
 		# Simulation parameters
-		self.N         = 20      # Number of agents
-		self.N_init	   = 20
+		self.N_init	   = 20		 # Number of agents initally
+		self.N         = self.N_init   # agents alive now
 		self.t         = 0       # current time of the simulation
 		self.tEnd      = 100     # time at which simulation ends
-		self.dt        = 0.05    # time step size
+		self.dt        = 0.02    # time step size
 		self.plotRealTime = plot_real_time # switch on for plotting as the simulation goes along
 		self.agents = []
 		self.running = True
@@ -133,7 +133,7 @@ class Environment:
 		food_pos = (np.random.normal(0, self.gridsize/3, (self.foodN, 2)))
 		
 		for i in range(self.foodN):
-			self.food_dict[tuple(food_pos[i])] = 5
+			self.food_dict[tuple(food_pos[i])] = np.random.normal(4, 1)
 	
 
 	# TODO how to account for selection / recombination 
@@ -341,7 +341,7 @@ def main():
 
 	print("\n")
 
-	generations = 8
+	generations = 20
 
 	initial_size = 20
 	initial_energy = 20
