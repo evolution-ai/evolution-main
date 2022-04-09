@@ -28,20 +28,20 @@ class Agent:
 
 	def __init__(self, position, init_velocity, size = 10.0, energy = 20.0, 
 	sight_range = 40.0, max_speed = 5.0, max_acc = 5.0, eat_range = 1.0, max_energy = 20.0, behavioural = 2.0,
-	can_reproduce = True, energy_consumption = 0.01, agent_id = 0):
+	can_reproduce = True, energy_consumption = 0.01, agent_id = 0, temperature = 100):
 		
 		self.pos = position 
 		self.vel = init_velocity
 		self.size = size
 
-		self.energy_consumption = ((size**2 
+		self.energy_consumption = (((size * temperature/100)**2 
 			* sight_range/20
 			* max_speed/5 
 			* max_acc/5) 
 			/ 1000)
 
-		self.energy = energy
-		self.max_energy = 5*size
+		self.max_energy = 3*size
+		self.energy = self.max_energy
 		self.sight_range = sight_range
 		self.max_speed = max_speed
 		self.max_acc = max_acc
@@ -70,6 +70,7 @@ class Agent:
 
 
 	def get_eat_move(self, food_dict):
+
 		dists = []
 
 		# find distance to each food within sight
@@ -109,11 +110,6 @@ class Agent:
 		rel_pos = rel_pos[0:5]
 		rel_pos = list(sum(rel_pos,())) 
 		
-		# ax = np.array([[1]])
-		# ay = np.array([[0]])
-		
-		# # pack together the acceleration components
-		# a = np.hstack((ax,ay))
 
 		a = (a / np.linalg.norm(a)) * self.max_acc
 		self.energy -= self.energy_consumption
@@ -181,6 +177,7 @@ class Agent:
 		
 		if want == EAT:
 			return self.get_eat_move(food_dict)
+
 		elif want == REPRODUCE:
 			return self.get_reproduce_move(agent_list)
 

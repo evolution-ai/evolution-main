@@ -57,7 +57,7 @@ class Environment:
 		if plot_real_time:
 			self.viz = Visualizer()
 
-		self.foodN = 1000
+		self.foodN = 300
 		self.food_dict = dict()
 
 		self.initialize_positions()
