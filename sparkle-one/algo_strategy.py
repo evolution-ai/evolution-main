@@ -296,32 +296,53 @@ class AlgoStrategy(gamelib.AlgoCore):
 
 
 
-		
+
 
 
 		# TODO: KAMIKAZE ATTACKS AND ALSO THE INTERCEPTORS AND ALSO THE STRUCTURE MEMORY AND ALSO THE CENTRE OPEN
-		if lowest_damage_amount < 2 and game_state.get_resource(MP) > (attack_MP_threshold // 2) and check_scout_pathing:
+		if lowest_damage_amount < 2 and game_state.get_resource(MP) > attack_MP_threshold and check_scout_pathing:
+
+			game_state.attempt_spawn(SCOUT, lowest_damage_spawn_location, 8)
 			
 			if lowest_damage_spawn_location in left_test_spawns:
 				wall_to_not_build = right_flank_piece
+				game_state.attempt_spawn(SCOUT, [lowest_damage_spawn_location[0]-1, lowest_damage_spawn_location[1]+1], 100)
 			else:
 				wall_to_not_build = left_flank_piece
+				game_state.attempt_spawn(SCOUT, [lowest_damage_spawn_location[0]+1, lowest_damage_spawn_location[1]+1], 100)
 
-			game_state.attempt_spawn(SCOUT, lowest_damage_spawn_location, 1000)
+
+
+		elif game_state.get_resource(MP) > (attack_MP_threshold // 2) and self.susceptible_to_destructor(game_state):
+
+			if lowest_damage_spawn_location in left_test_spawns:
+				wall_to_not_build = right_flank_piece
+				right_front_attack_walls = [[22, 13], [21, 13], [20, 13], [19, 13], [18, 13], [17, 13], [16, 13], [15, 13], [14, 13], [13, 13], [12, 13], [11, 13], [10, 13]]
+				game_state.attempt_spawn(WALL, right_front_attack_walls)
+				game_state.attempt_remove(right_front_attack_walls)
+
+			else:
+				wall_to_not_build = left_flank_piece
+				left_front_attack_walls = [[5, 13], [6, 13], [7, 13], [8, 13], [9, 13], [10, 13], [11, 13], [12, 13], [13, 13], [14, 13], [15, 13], [16, 13], [17, 13]]
+				game_state.attempt_spawn(WALL, left_front_attack_walls)
+				game_state.attempt_remove(left_front_attack_walls)
+
+			game_state.attempt_spawn(DEMOLISHER, lowest_damage_spawn_location, 1000)
 
 
 		elif game_state.get_resource(MP) > attack_MP_threshold:
 			
 			if lowest_damage_spawn_location in left_test_spawns:
 				wall_to_not_build = right_flank_piece
+				game_state.attempt_spawn(DEMOLISHER, [2, 11], 1000)
+
 			else:
 				wall_to_not_build = left_flank_piece
-			game_state.attempt_spawn(DEMOLISHER, lowest_damage_spawn_location, 1000)
+				game_state.attempt_spawn(DEMOLISHER, [25, 11], 1000)
 
 
-		else:
+		elif game_state.turn_number < 12:
 			game_state.attempt_spawn(INTERCEPTOR, [[1, 12], [26, 12]])
-
 
 
 
@@ -335,6 +356,95 @@ class AlgoStrategy(gamelib.AlgoCore):
 
 
 
+
+	def spawn_defensive_interceptors(self, game_state):
+
+		pass
+		# spawn interceptors if gap in wall
+		# check spawn points
+
+		# left_corner_structs = [[0, 13], [1, 13], [2, 13], [3, 13], [3, 12]]
+		# left_flank_structs = [[4, 13], [4, 12], [5, 12], [5, 11], [6, 11]]
+		# left_main_structs = [[7, 11], [8, 11], [9, 11], [10, 11], [11, 11], [8, 10]]
+		# central_main_structs = [[12, 11], [13, 11], [14, 11], [15, 11], [12, 10], [15, 10]]
+		# right_main_structs = [[16, 11], [17, 11], [18, 11], [19, 11], [20, 11], [19, 10]]
+		# right_flank_structs = [[23, 13], [22, 12], [23, 12], [21, 11], [22, 11]]
+		# right_corner_structs = [[24, 13], [25, 13], [26, 13], [27, 13], [24, 12]]
+
+		# left_corner_count = 0
+		# left_flank_count = 0
+		# left_main_count = 0
+		# central_main_count = 0
+		# right_main_count = 0
+		# right_flank_count = 0
+		# right_corner_count = 0
+
+		# for location in left_corner_structs:
+		# 	if game_state.contains_stationary_unit(location):
+		# 		left_corner_count += 1
+
+		# for location in left_flank_structs:
+		# 	if game_state.contains_stationary_unit(location):
+		# 		left_flank_count += 1
+
+		# for location in left_main_structs:
+		# 	if game_state.contains_stationary_unit(location):
+		# 		left_main_count += 1
+
+		# for location in central_main_structs:
+		# 	if game_state.contains_stationary_unit(location):
+		# 		central_main_count += 1
+
+		# for location in right_main_structs:
+		# 	if game_state.contains_stationary_unit(location):
+		# 		right_main_count += 1
+
+		# for location in right_flank_structs:
+		# 	if game_state.contains_stationary_unit(location):
+		# 		right_flank_count += 1
+
+		# for location in right_corner_structs:
+		# 	if game_state.contains_stationary_unit(location):
+		# 		right_corner_count += 1
+
+
+		# num_spawned = game_state.turn_number // 30
+
+		# if left_corner_count <= 3:
+		# 	game_state.attempt_spawn(INTERCEPTOR, [2,11], num_spawned)
+
+		# if left_flank_count <= 3 or ((left_corner_count + left_flank_count) <= 7):
+		# 	game_state.attempt_spawn(INTERCEPTOR, [4,9], num_spawned)
+
+		# if left_main_count <= 4:
+		# 	game_state.attempt_spawn(INTERCEPTOR, [7,6], num_spawned)
+
+		# if central_main_count <= 5:
+		# 	game_state.attempt_spawn(INTERCEPTOR, [[7,6], [20, 6]])
+
+		# if right_main_count <= 4:
+		# 	game_state.attempt_spawn(INTERCEPTOR, [20,6], num_spawned)
+
+		# if right_flank_count <= 3 or ((right_corner_count + right_flank_count) <= 7):
+		# 	game_state.attempt_spawn(INTERCEPTOR, [23,9], num_spawned)
+
+		# if right_corner_count <= 3:
+		# 	game_state.attempt_spawn(INTERCEPTOR, [25,11], num_spawned)
+
+
+
+
+
+
+	def susceptible_to_destructor(self, game_state):
+
+		current_turn = game_state.turn_number
+
+		wall_check_counter = (self.opponent_structure_history[-1][FRONTAL_WALLS]
+			+ self.opponent_structure_history[-2][FRONTAL_WALLS]
+			+ self.opponent_structure_history[-1][FRONTAL_WALLS])
+
+		return current_turn > 9 and wall_check_counter > 2
 
 
 
@@ -408,7 +518,7 @@ class AlgoStrategy(gamelib.AlgoCore):
 			gamelib.debug_write("WEAK_RIGHT_LINE")
 			features[WEAK_RIGHT_LINE] = 1
 		
-		if filter_results[FRONTAL_WALLS] >= 14:
+		if filter_results[FRONTAL_WALLS] >= 12:
 			gamelib.debug_write("FRONTAL_WALLS")
 			features[FRONTAL_WALLS] = 1
 		
@@ -429,11 +539,9 @@ class AlgoStrategy(gamelib.AlgoCore):
 			features[WEAK_RIGHT_CLUSTER] = 1
 
 
-
 		self.opponent_structure_history.append(features)
 
 	
-
 
 
 	def apply_convolution(self, game_state, enemy_structure, filter_number):
