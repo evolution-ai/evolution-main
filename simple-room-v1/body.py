@@ -9,13 +9,6 @@ from dataclasses import dataclass
 
 
 
-# @dataclass
-# class Action:
-# 	accelaration: np.array()
-# 	to_eat_action: bool
-# 	to_eat_loc: tuple
-
-
 ## Class definition:
 
 MOVE = 0
