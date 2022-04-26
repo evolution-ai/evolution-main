@@ -6,7 +6,7 @@ import pygame
 import random
 
 ## Class definition:
-# the basic agen class
+# the basic agent class
 
 
 ## Fields:
