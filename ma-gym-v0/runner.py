@@ -1,5 +1,4 @@
 import gym
-
 from stable_baselines3 import PPO
 
 env = gym.make("CartPole-v1")

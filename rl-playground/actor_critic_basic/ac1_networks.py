@@ -1,5 +1,6 @@
 import os
 from pickletools import optimize
+from tkinter import S
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.model_selection import learning_curve
@@ -16,7 +17,7 @@ class ActorCriticNetwork(tf.keras.Model):
 
     # constructor for the model
     def __init__(self, n_actions, fc1_dims = 1024, fc2_dims = 512,
-        name = 'actor_critic', chkpt_dir = "tmp2/actor_critic"):
+        name = 'actor_critic', chkpt_dir = "rl-playground/actor_critic_basic/tmp2/actor_critic"):
 
         # interface initialise
         super(ActorCriticNetwork, self).__init__()
