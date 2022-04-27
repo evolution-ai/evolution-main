@@ -2,11 +2,12 @@ from pettingzoo.butterfly import pistonball_v6
 import numpy as np
 from array2gif import write_gif
 import os
+
 os.environ["SDL_VIDEODRIVER"] = "dummy"
 
 GRAYSCALE_WEIGHTS = np.array([0.299, 0.587, 0.114], dtype=np.float32)
 
-# print(GRAYSCALE_WEIGHTS@np.array([68,76,77]))
+
 def change_observation(obs):
     obs = (obs.astype(np.float32) @ GRAYSCALE_WEIGHTS).astype(np.uint8)
     return obs
@@ -19,6 +20,7 @@ count = 0
 
 
 def policy(obs):
+
     global count
     obs = change_observation(obs)
     count += 1
@@ -38,10 +40,13 @@ def policy(obs):
     pi1 = 200 - np.argmax(first_piston_vals[:,11])
     pi2 = 200 - np.argmax(first_piston_vals[:,51])
     pi3 = 200 - np.argmax(first_piston_vals[:,91])
+    
     if pi1 == 200:
         action = DOWN
+
     elif pi3 == 200:
         action = UP
+
     else:
         return DOWN
         if pi2 > pi3:
