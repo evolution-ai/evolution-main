@@ -3,6 +3,7 @@ import numpy as np
 from array2gif import write_gif
 import os
 
+# solve the pinball problem manually
 os.environ["SDL_VIDEODRIVER"] = "dummy"
 
 GRAYSCALE_WEIGHTS = np.array([0.299, 0.587, 0.114], dtype=np.float32)
