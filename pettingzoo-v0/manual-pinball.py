@@ -19,7 +19,7 @@ UP = np.array([1.], dtype=np.float32)
 HOLD = np.array([0.], dtype=np.float32)
 count = 0
 
-
+# manual policy works
 def policy(obs):
 
     global count
