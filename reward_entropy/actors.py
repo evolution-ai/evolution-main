@@ -4,11 +4,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.model_selection import learning_curve
 import tensorflow as tf
-import gym
 from tensorflow.keras.optimizers import Adam
 import tensorflow_probability as tfp
 
-from ac1_networks import ActorCriticNetwork
+from networks import ActorCriticNetwork
 
 class Agent:
 
