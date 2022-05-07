@@ -1,9 +1,3 @@
-gamelib
-=======
-
-.. toctree::
-   :maxdepth: 4
-
-   gamelib
-
-* :ref:`genindex`
+version https://git-lfs.github.com/spec/v1
+oid sha256:be7ef7b8889f022a518f89f35a22dd8ae7bdc453b858c4b03d5914f546bd67fb
+size 76
