@@ -1,4 +1,6 @@
 import numpy as np
 import csv
+import telegram_send
+import keyboard
 
-np.savetxt("entropy_test.csv", [[1,2], [3,4]], delimiter =" ",  fmt ='% s')
+telegram_send.send(messages=["Wow that was easy!"])
