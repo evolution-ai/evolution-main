@@ -34,14 +34,15 @@ if __name__ == '__main__':
     load_checkpoint = False
 
     # if we want to render the environment
-    to_render = False
+    to_render = True
 
 
     # call the open AI gym environment
-    env = gym.make('CartPole-v1')
+    env = gym.make('MountainCar-v0')
+    # env = gym.make('CartPole-v1')
 
     # create an actor
-    agent = Agent(alpha = alpha, n_actions=env.action_space.n, name="ac-cartpole-")
+    agent = Agent(alpha = alpha, n_actions=env.action_space.n, name="ac-mountain_car-")
     
 
     # for file saves only
@@ -75,7 +76,7 @@ if __name__ == '__main__':
             # render the environment
             if to_render and (i % 1 == 0):
                 env.render()
-                time.sleep(0.05)
+                # time.sleep(0.05)
 
             # use the policy to choose an action
             action, entropy = agent.choose_action(observation)
@@ -128,7 +129,7 @@ if __name__ == '__main__':
     if to_render:
         env.close()
 
-    np.savetxt("cp_a0005_e500_1.csv", [avg_score_history, avg_entropy_history], delimiter =",",  fmt ='% s')
+    np.savetxt("mc_a0005_e500_1.csv", [avg_score_history, avg_entropy_history], delimiter =",",  fmt ='% s')
 
     # plt.plot(avg_score_history)
     # plt.plot(avg_entropy_history)
