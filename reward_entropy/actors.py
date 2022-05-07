@@ -6,12 +6,13 @@ from sklearn.model_selection import learning_curve
 import tensorflow as tf
 from tensorflow.keras.optimizers import Adam
 import tensorflow_probability as tfp
+from scipy.stats import entropy
 
 from networks import ActorCriticNetwork
 
 class Agent:
 
-    def __init__(self, alpha = 0.0001, gamma = 0.99, n_actions = 2):
+    def __init__(self, alpha = 0.001, gamma = 0.99, n_actions = 2, name="actor_critic"):
 
         self.alpha = alpha      # learning rate
         self.gamma = gamma      # discount factor
@@ -20,7 +21,7 @@ class Agent:
         self.action = None         # the action we choose
 
         self.action_space = [i for i in range(self.n_actions)]
-        self.actor_critic = ActorCriticNetwork(n_actions=n_actions)
+        self.actor_critic = ActorCriticNetwork(n_actions=n_actions, name=name)
 
         # initialise an optimizer for the agent
         self.actor_critic.compile(optimizer = Adam(learning_rate = alpha))
@@ -40,7 +41,11 @@ class Agent:
         # pick an action from the distribution and set it as our move
         self.action = action
 
-        return action.numpy()[0]
+        # rework action probabilities for entropy calc
+        probs = np.squeeze(probs.numpy())
+        entrpy = entropy(probs)
+
+        return action.numpy()[0], entrpy
 
 
     # save weights
