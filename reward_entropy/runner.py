@@ -9,6 +9,8 @@ import tensorflow_probability as tfp
 import time
 from actors import Agent
 
+import telegram_send
+
 
 # helper to plot a learning curve
 def plot_learning_curve(x, scores, figure_file):
@@ -25,7 +27,7 @@ def plot_learning_curve(x, scores, figure_file):
 if __name__ == '__main__':
 
     ## HYPER PARAMETERS
-    alpha = 0.0001
+    alpha = 0.0005
     n_episodes = 500
 
     # if using the saved weights and biases
@@ -102,10 +104,10 @@ if __name__ == '__main__':
         episodic_entropy = total_entropy/episode_length
         entropy_history.append(episodic_entropy)
 
-        avg_score = np.mean(score_history[-10:])
+        avg_score = np.mean(score_history[-15:])
         avg_score_history.append(avg_score)
 
-        avg_entropy = np.mean(entropy_history[-10:])
+        avg_entropy = np.mean(entropy_history[-15:])
         avg_entropy_history.append(avg_entropy)
 
         # if the model is really good then save the weights
@@ -115,17 +117,19 @@ if __name__ == '__main__':
                 agent.save_models()
 
         # print to see agent performance
-        print('episode ', i, 'score %.1f' % score, 'avg_score %.1f' % avg_score, 
-            'avg_entropy %.2f' % avg_entropy)
+        print_string = f'episode {i}, score {score:.2f}, avg score {avg_score:.2f}, avg entr {avg_entropy:.2f}'
+        print(print_string)
+
+        if i == n_episodes-1:
+            telegram_send.send(messages=[print_string])
 
 
     # end the render
     if to_render:
         env.close()
 
+    np.savetxt("cp_a0005_e500_1.csv", [avg_score_history, avg_entropy_history], delimiter =",",  fmt ='% s')
 
-    np.savetxt("a0001_e500_1.csv", [avg_score_history, avg_entropy_history], delimiter =" ",  fmt ='% s')
-
-    plt.plot(avg_score_history)
-    plt.plot(avg_entropy_history)
-    plt.show()
+    # plt.plot(avg_score_history)
+    # plt.plot(avg_entropy_history)
+    # plt.show()
