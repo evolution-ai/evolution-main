@@ -2,5 +2,14 @@ import numpy as np
 import csv
 import telegram_send
 import keyboard
+import time
 
-telegram_send.send(messages=["Wow that was easy!"])
+print("hi")
+
+# time.sleep(500)
+
+# telegram_send.send(messages=["Error: Training Failed after 1023 Epochs", "Average Score = 32.43, Average Entropy = 0.52"])
+
+# time.sleep(10)
+
+# telegram_send.send(messages=["Rerunning Model"])
