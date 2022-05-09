@@ -44,7 +44,6 @@ if __name__ == '__main__':
     # create an actor
     agent = Agent(alpha = alpha, n_actions=env.action_space.n, name="ac-mountain_car-")
     
-
     # for file saves only
     filename = 'cartpole.png'
     figure_file = 'plots/' + filename
