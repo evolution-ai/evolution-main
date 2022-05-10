@@ -9,18 +9,20 @@ k2=14452024897089758284794253733719456748127778221515070247971881396854908873568
 # Euler
 k3=2352035939949658122140829649197960929306974813625028263292934781954073595495544614140648457342461564887325223455620804204796011434955111022376601635853210476633318991990462192687999109308209472315419713652238185967518731354596984676698288025582563654632501009155760415054499960
 
-# Assign k1,k2, k3 to k to get desired image
 k_array = [k1, k2, k3]
-width = 106
-height = 17
+wid = 106
+hgt = 17
 scale = 5
 
 for k in k_array:
-    image  = Image.new("RGB", (width, height),(255, 255, 255))
 
-    for x in range (width):
-        for y in range (height):
-            if ((k+y)//17//2**(17*int(x)+int(y)%17))%2 > 0.5:
-                image.putpixel((x, height-y-1), (0,0,0))
+    image  = Image.new("RGB", (wid, hgt), (255, 255, 255))
+
+    for x in range (wid):
+        for y in range (hgt):
+
+            if ((k+y) // 17 // 2**(17 * int(x) + int(y) % 17)) % 2 > 0.5:
+
+                image.putpixel((x, hgt-y-1), (0,0,0))
 
     image.show()
