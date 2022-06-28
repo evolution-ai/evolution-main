@@ -15,7 +15,6 @@ for i in range(100000):
     counts = 0
 
     while True:
-
         if state == 0:
             state = np.random.choice([0,1,2,3], p=p0)
         elif state == 1:
@@ -24,7 +23,6 @@ for i in range(100000):
             state = np.random.choice([0,1,2,3], p=p2)
 
         counts += 1
-
         if state == 3: break
 
     all_counts.append(counts)
@@ -35,6 +33,6 @@ all_counts.sort()
 histo = Counter(all_counts)
 
 for key in histo:
-    histo[key]/= 100000 
+    histo[key]/= 100000
 
 print(histo[0]+histo[1]+histo[2])
